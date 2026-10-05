@@ -75,7 +75,7 @@ def run(cfg: dict, topics: dict, instructions: str, state: State, session, sende
         # Первый запуск: всё текущее считаем прочитанным, чтобы не завалить чат
         state.mark_seen(new)
         state.bootstrapped = True
-        sender.send(f"✅ Парсер новостей для @ExpressPT запущен.\n"
+        sender.send(f"✅ Парсер новостей для {s.get('channel', '@ExpressPT')} запущен.\n"
                     f"Источников работает: {ok} из {len(cfg['sources'])}.\n"
                     f"Текущие {len(new)} новостей отмечены как прочитанные — дальше будут приходить только новые.",
                     preview=False)

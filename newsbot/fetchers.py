@@ -115,7 +115,9 @@ def parse_rss(raw: bytes, src: dict, base_url: str = "") -> list[Item]:
     feed = feedparser.parse(raw)
     title_strip = re.compile(src["title_strip"]) if src.get("title_strip") else None
     if not feed.entries:
-        raise ValueError(f"в ленте нет записей ({feed.get('bozo_exception', 'пусто')})")
+        start = re.sub(r"\s+", " ", raw[:300].decode("utf-8", "replace"))
+        raise ValueError(f"в ленте нет записей ({feed.get('bozo_exception', 'пусто')}); "
+                         f"начало ответа: {start[:150]!r}")
     items = []
     for e in feed.entries:
         link = re.sub(r"#utm_.*$", "", _entry_link(e, base_url or src.get("url", "")))
@@ -207,6 +209,25 @@ def parse_publico_json(data, src: dict) -> list[Item]:
     return items
 
 
+def parse_wp_json(data, src: dict) -> list[Item]:
+    """WordPress REST API (/wp-json/wp/v2/posts): заголовок, ссылка, дата и полный текст."""
+    if not isinstance(data, list) or not data:
+        raise ValueError("WordPress API не вернул список записей")
+    items = []
+    for row in data:
+        title = clean_text((row.get("title") or {}).get("rendered"))
+        link = row.get("link")
+        if not title or not link:
+            continue
+        items.append(Item(
+            source_id=src["id"], source_name=src["name"], url=link, title=title,
+            summary=clean_text((row.get("excerpt") or {}).get("rendered"))[:1500],
+            content=clean_text((row.get("content") or {}).get("rendered")),
+            published=parse_date((row.get("date_gmt") or "") + "+00:00" if row.get("date_gmt") else None),
+        ))
+    return items
+
+
 def parse_html_list(html: str, base_url: str, src: dict, limit: int = 40) -> list[Item]:
     pattern = re.compile(src["link_pattern"])
     soup = BeautifulSoup(html, "lxml")
@@ -237,6 +258,8 @@ def fetch_one(session: requests.Session, spec: dict, src: dict) -> list[Item]:
         return parse_rss(resp.content, {**src, **spec}, spec["url"])
     if kind == "publico_json":
         return parse_publico_json(resp.json(), src)
+    if kind == "wp_json":
+        return parse_wp_json(resp.json(), src)
     if kind == "html":
         return parse_html_list(resp.text, spec["url"], {**src, **spec})
     raise ValueError(f"неизвестный тип источника: {kind}")
