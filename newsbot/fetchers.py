@@ -111,14 +111,17 @@ def http_get(session: requests.Session, url: str, user_agent: str | None = None)
 
 # ---------- парсеры ----------
 
-def parse_rss(raw: bytes, src: dict) -> list[Item]:
+def parse_rss(raw: bytes, src: dict, base_url: str = "") -> list[Item]:
     feed = feedparser.parse(raw)
+    title_strip = re.compile(src["title_strip"]) if src.get("title_strip") else None
     if not feed.entries:
         raise ValueError(f"в ленте нет записей ({feed.get('bozo_exception', 'пусто')})")
     items = []
     for e in feed.entries:
-        link = _entry_link(e)
-        title = clean_text(e.get("title"))
+        link = _entry_link(e, base_url or src.get("url", ""))
+        title = clean_text(e.get("title")) or clean_text(e.get("summary"))[:160]
+        if title_strip:
+            title = title_strip.sub("", title).strip()
         if not link or not title:
             continue
         content = ""
@@ -136,15 +139,26 @@ def parse_rss(raw: bytes, src: dict) -> list[Item]:
     if not items:
         first = feed.entries[0]
         raise ValueError(f"в ленте {len(feed.entries)} записей, но ни одной со ссылкой и заголовком "
-                         f"(поля: {sorted(first.keys())[:15]})")
+                         f"(пример: link={str(first.get('link'))[:80]!r}, "
+                         f"title={str(first.get('title'))[:60]!r}, id={str(first.get('id'))[:60]!r})")
     return items
 
 
-def _entry_link(e) -> str:
-    """Ссылка на статью: link, затем links[], затем guid, если он похож на URL."""
-    for cand in [e.get("link")] + [l.get("href") for l in e.get("links", [])] + [e.get("id")]:
+def _entry_link(e, base_url: str = "") -> str:
+    """Ссылка на статью: link, затем links[], затем guid. Относительные ссылки достраиваются."""
+    cands = [e.get("link")] + [l.get("href") for l in e.get("links", [])] + [e.get("id")]
+    for cand in cands:
         if cand and str(cand).strip().startswith("http"):
             return str(cand).strip()
+    if base_url:
+        for cand in cands[:-1]:  # guid без http — обычно просто номер, не ссылка
+            c = str(cand or "").strip()
+            if c.startswith("//"):
+                return "https:" + c
+            if re.match(r"^(www\.)?[a-z0-9-]+(\.[a-z0-9-]+)+/", c, re.I):
+                return "https://" + c
+            if c.startswith("/") or re.match(r"^[\w-]+/", c):
+                return urljoin(base_url, c)
     return ""
 
 
@@ -218,7 +232,7 @@ def fetch_one(session: requests.Session, spec: dict, src: dict) -> list[Item]:
     resp = http_get(session, spec["url"], spec.get("user_agent"))
     kind = spec["type"]
     if kind == "rss":
-        return parse_rss(resp.content, src)
+        return parse_rss(resp.content, {**src, **spec}, spec["url"])
     if kind == "publico_json":
         return parse_publico_json(resp.json(), src)
     if kind == "html":
@@ -228,7 +242,7 @@ def fetch_one(session: requests.Session, spec: dict, src: dict) -> list[Item]:
 
 def fetch_source(session: requests.Session, src: dict) -> list[Item]:
     """Пробует основной способ, затем запасные. Бросает исключение, если не сработал ни один."""
-    specs = [{k: src[k] for k in ("type", "url", "link_pattern", "user_agent") if k in src}]
+    specs = [{k: src[k] for k in ("type", "url", "link_pattern", "user_agent", "title_strip") if k in src}]
     specs += src.get("fallback", [])
     errors = []
     for spec in specs:
