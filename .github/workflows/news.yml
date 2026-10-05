@@ -1,11 +1,11 @@
 name: ExpressPT news
 
-# Как запускается: каждый запуск в конце ждёт следующего «слота» (:07 или :37 UTC)
+# Как запускается: каждый запуск в конце ждёт следующего «слота» (:13 или :43 UTC)
 # и сам запускает следующий. Расписание GitHub (schedule) — запасной вариант:
 # если цепочка оборвётся, оно её перезапустит. Вручную — кнопка Run workflow.
 on:
   schedule:
-    - cron: "7,37 * * * *"
+    - cron: "13,43 * * * *"
   workflow_dispatch: {}
 
 permissions:
@@ -66,7 +66,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           m=$(date -u +%-M); s=$(date -u +%-S)
-          if [ "$m" -lt 7 ]; then t=7; elif [ "$m" -lt 37 ]; then t=37; else t=67; fi
+          if [ "$m" -lt 13 ]; then t=13; elif [ "$m" -lt 43 ]; then t=43; else t=73; fi
           wait=$(( (t - m) * 60 - s )); [ "$wait" -lt 1 ] && wait=1
           echo "Следующий запуск через $wait с"
           sleep "$wait"
