@@ -1,7 +1,7 @@
 {
  "bootstrapped": true,
  "failures": {
-  "lisboasecreta": 2
+  "lisboasecreta": 3
  },
  "known_sources": [
   "dn",
@@ -49,6 +49,7 @@
   "03ae101299e8188a": "2026-10-05T12:02:02+00:00",
   "03d456c32e6b455b": "2026-10-05T12:02:10+00:00",
   "03f3e9ffcbaaa71c": "2026-10-05T12:02:02+00:00",
+  "03f564811b3339fa": "2026-10-05T12:07:56+00:00",
   "0437c4530c289b6b": "2026-10-05T11:57:24+00:00",
   "0458ac4b4f12352c": "2026-10-05T11:57:24+00:00",
   "04dec3bffbc09039": "2026-10-05T11:57:24+00:00",
@@ -244,6 +245,7 @@
   "31bf386f9cad56a8": "2026-10-05T11:57:24+00:00",
   "32247317e6f4e883": "2026-10-05T11:57:24+00:00",
   "3253c396921a0dba": "2026-10-05T11:57:24+00:00",
+  "32f83509aa1f94bf": "2026-10-05T12:07:56+00:00",
   "332d42bf674eb782": "2026-10-05T12:02:02+00:00",
   "33a5d043c2646c95": "2026-10-05T11:57:24+00:00",
   "33ca3f251fb40c66": "2026-10-05T11:57:24+00:00",
@@ -407,6 +409,7 @@
   "5be2d94637701236": "2026-10-05T11:57:24+00:00",
   "5c179b51966cb351": "2026-10-05T12:02:02+00:00",
   "5c5a9f7648b57b49": "2026-10-05T11:57:24+00:00",
+  "5cc08e87ccd2984f": "2026-10-05T12:07:31+00:00",
   "5ccb7236533d783d": "2026-10-05T11:57:24+00:00",
   "5cf081a15a53d781": "2026-10-05T11:57:24+00:00",
   "5cf090b0319ae864": "2026-10-05T12:02:02+00:00",
@@ -650,6 +653,7 @@
   "9167ac65a521caa0": "2026-10-05T11:57:24+00:00",
   "9169e641b068dd9b": "2026-10-05T11:57:24+00:00",
   "91a16557f1b8dcf8": "2026-10-05T11:57:24+00:00",
+  "91ab1177743634c2": "2026-10-05T12:07:56+00:00",
   "91d4fb2d0a7747e6": "2026-10-05T11:57:24+00:00",
   "91db77f01c11bcd0": "2026-10-05T11:57:24+00:00",
   "9235ae755128c834": "2026-10-05T11:57:24+00:00",
@@ -757,6 +761,7 @@
   "a81bebaf828c947e": "2026-10-05T12:02:02+00:00",
   "a87263efecb5143c": "2026-10-05T11:57:24+00:00",
   "a8a231ccee87af84": "2026-10-05T11:57:24+00:00",
+  "a8c5e65225a6b050": "2026-10-05T12:07:56+00:00",
   "a8f1b6b94a88a71d": "2026-10-05T11:57:24+00:00",
   "a908d45082fde1db": "2026-10-05T11:57:24+00:00",
   "a979352e22f12f97": "2026-10-05T11:57:24+00:00",
@@ -790,6 +795,7 @@
   "b2cffc50425ce177": "2026-10-05T12:02:02+00:00",
   "b2fdb0f790e9deae": "2026-10-05T11:57:24+00:00",
   "b30f4e10f68898de": "2026-10-05T11:57:24+00:00",
+  "b31739a5237d6166": "2026-10-05T12:07:56+00:00",
   "b34b46817aa1c0ee": "2026-10-05T11:57:24+00:00",
   "b36b88298f40441c": "2026-10-05T12:02:02+00:00",
   "b3bac60b321ecb84": "2026-10-05T11:57:24+00:00",
@@ -855,6 +861,7 @@
   "be932cc642016aee": "2026-10-05T12:02:02+00:00",
   "bea9742e9b93572e": "2026-10-05T11:57:24+00:00",
   "bed20c58ccb237bf": "2026-10-05T11:57:24+00:00",
+  "bee73d42a39994d2": "2026-10-05T12:07:56+00:00",
   "bf0414518b47fc07": "2026-10-05T11:57:24+00:00",
   "bf24a27d61486246": "2026-10-05T12:02:02+00:00",
   "c01ff36cbdc1eed5": "2026-10-05T11:57:24+00:00",
@@ -928,6 +935,7 @@
   "cf6d298122e890ab": "2026-10-05T11:57:24+00:00",
   "cf9c17e5ce5a07dd": "2026-10-05T12:02:02+00:00",
   "cfbc428266a27d52": "2026-10-05T11:57:24+00:00",
+  "cff7e63f044ef251": "2026-10-05T12:07:31+00:00",
   "d051e6f336882e62": "2026-10-05T11:57:24+00:00",
   "d06681e1518448fb": "2026-10-05T11:57:24+00:00",
   "d0cdf9dfc807f21b": "2026-10-05T11:57:24+00:00",
@@ -1207,6 +1215,7 @@
   "t:acaboudecomerejatemfomeoutravez7possiveisrazoes": "2026-10-05T11:57:24+00:00",
   "t:acapqueracabarcomoisveaumentariuc": "2026-10-05T11:57:24+00:00",
   "t:acidentedecarronoqueniamata17pessoasmaioriaperegrinos": "2026-10-05T11:57:24+00:00",
+  "t:acomputacaodofuturoaproximaseestamospreparadosparaoquevemai": "2026-10-05T12:07:31+00:00",
   "t:acoresenfrentamultimosremanescentesdadepressaopostropicalhannaestailhaaindapoder": "2026-10-05T11:57:24+00:00",
   "t:adedicatoriaespecialdeyamalaposmaisumgoloestevaipara": "2026-10-05T11:57:24+00:00",
   "t:adeusbmw320d19982026foibomenquantodurou": "2026-10-05T11:57:24+00:00",
@@ -1227,6 +1236,7 @@
   "t:aiadizquetenhorazao": "2026-10-05T11:57:24+00:00",
   "t:aindaexistemespacosparacontinuaracresceronegocioseguradoremportugal": "2026-10-05T11:57:24+00:00",
   "t:airinvictusteveumimpactoglobalsuperiora136milhoesdeeuros": "2026-10-05T11:57:24+00:00",
+  "t:alemanhaalertaparariscodeconflitoviolentocomarussia": "2026-10-05T12:07:56+00:00",
   "t:alertamaximoemtodaacostacatalachuvasobrigama33resgates": "2026-10-05T11:57:24+00:00",
   "t:alertaveraoatrevaseamisturarpadroesetexturas": "2026-10-05T11:57:24+00:00",
   "t:alexfergusonassumereceiodademenciasechegaraos85anos": "2026-10-05T11:57:24+00:00",
@@ -1296,6 +1306,7 @@
   "t:autordecartazcontrajjpronunciasecristianoronaldoestaasofrer": "2026-10-05T12:02:02+00:00",
   "t:autoridadesbrasileirassatisfeitascomvotacaoemportugal": "2026-10-05T11:57:24+00:00",
   "t:auxarmescreanciers": "2026-10-05T11:57:24+00:00",
+  "t:avidanaovemcombotaodepausamaspodemosaprenderaparar": "2026-10-05T12:07:31+00:00",
   "t:avisosamarelosdoipmaemportugaltrovoadaschuvafortegranizoerajadasmarcamatardedest": "2026-10-05T11:57:24+00:00",
   "t:baleiasgigantesinvademagronelandiaaposodegeloamudancaecologicahistoricaquealarma": "2026-10-05T11:57:24+00:00",
   "t:balneariodosantosperplexocomosoculosderonyoqueeisso": "2026-10-05T11:57:24+00:00",
@@ -1373,6 +1384,7 @@
   "t:cercade1500pessoasrepatriadasdamalasiaparamyanmar": "2026-10-05T11:57:24+00:00",
   "t:cercade325milhoesdebarrislibertadosdasreservasdepetroleo": "2026-10-05T11:57:24+00:00",
   "t:cercade350litrosdecombustivelapreendidospelagnremaljezur": "2026-10-05T11:57:24+00:00",
+  "t:cercade60detidosemmoscovoduranteprotestodehomenagemaataquesde1993": "2026-10-05T12:07:56+00:00",
   "t:cercade60detidosemmoscovoemmanifestacaoquecontestoueleicoes": "2026-10-05T11:57:24+00:00",
   "t:ceumateuspresidentedaassociacaoportuguesadeeconomiadasaudenopodcast45grausvejaap": "2026-10-05T11:57:24+00:00",
   "t:chamasnumainstalacaodapetroliferasauditaaramcopertoderiade": "2026-10-05T11:57:24+00:00",
@@ -1594,6 +1606,7 @@
   "t:feijooquereleicoesantecipadasporqueespanhanaoaguentamais": "2026-10-05T11:57:24+00:00",
   "t:felipemeloarrasajogadoresdeportugalecristianoronaldometelike": "2026-10-05T11:57:24+00:00",
   "t:fengshuitorneadecoracaomaisharmoniosaefrescacomestasdicas": "2026-10-05T11:57:24+00:00",
+  "t:fernandaabreutrazalisboaoriode1995edizquepreconceitocomfunkeracismo": "2026-10-05T12:07:56+00:00",
   "t:fijipedemapaisesdesenvolvidostransicaojustaparaenergiasrenovaveis": "2026-10-05T11:57:24+00:00",
   "t:fijipedemapaisesdesenvolvidostransicaojustapararenovaveis": "2026-10-05T11:57:24+00:00",
   "t:fijipedemtransicaojustaparaenergiasrenovaveis": "2026-10-05T11:57:24+00:00",
@@ -1659,12 +1672,14 @@
   "t:governobrasileiroinvestigasupostaameacaaembaixadanorteamericana": "2026-10-05T12:02:02+00:00",
   "t:governodamadeiraapoioumaisde3100residentesemcamaradelobos": "2026-10-05T11:57:24+00:00",
   "t:governodeespanhavaivoltaraaprovardecretosparaahabitacao": "2026-10-05T11:57:24+00:00",
+  "t:governodoiemendizterreconquistadoestreitonomarvermelho": "2026-10-05T12:07:56+00:00",
   "t:governoemvezdeadotarmedidasdeterminadasfazocontrario": "2026-10-05T11:57:24+00:00",
   "t:governofinlandesultrapassamocoesdecensuradevidoamediooriente": "2026-10-05T12:02:02+00:00",
   "t:governovoltaabaixardescontonoispdogasoleoegasolina": "2026-10-05T11:57:24+00:00",
   "t:graceempresasresponsaveistemnovadirectoraexecutiva": "2026-10-05T11:57:24+00:00",
   "t:greciavoltaasurpreenderalemanhaegalescaiperanteadinamarca": "2026-10-05T11:57:24+00:00",
   "t:grevenaeasyjetcancelouquase370vooseimpactodevemanterseate6a": "2026-10-05T11:57:24+00:00",
+  "t:grevenaeasyjetcancelouquase370vooseimpactodevemanterseatesexta": "2026-10-05T12:07:56+00:00",
   "t:grevenaeasyjetcomtotaladesaoecancelamentospodemchegara90": "2026-10-05T11:57:24+00:00",
   "t:grupoacusatribunaldeforcardesistenciadepalestiniano": "2026-10-05T12:02:02+00:00",
   "t:grupovolkswagenchamamilhoesdecarrosaoficina": "2026-10-05T11:57:24+00:00",
@@ -1691,6 +1706,7 @@
   "t:homemencontradomortoemlouressuspeitoestaemfuga": "2026-10-05T11:57:24+00:00",
   "t:homemencontrairmaomortoemcasaemgaiapjainvestigar": "2026-10-05T11:57:24+00:00",
   "t:homemesfaqueadoportrioemalmadaagressoresestaoemfuga": "2026-10-05T11:57:24+00:00",
+  "t:homemresgatadoaposincendioemveleiropertodocabodaroca": "2026-10-05T12:07:56+00:00",
   "t:homenagemaumalendaadespedidadedzekodabosniaeherzegovina": "2026-10-05T12:02:02+00:00",
   "t:hondacivictyperestamaisagressivomashaumsenao": "2026-10-05T12:02:02+00:00",
   "t:hondacivictyperrenovasemascontinuaforadaeuropa": "2026-10-05T11:57:24+00:00",
@@ -2308,5 +2324,22 @@
   "t:zidanefalanomeiodatempestadetiroochapeuacristianoronaldo": "2026-10-05T11:57:24+00:00",
   "t:zidaneilibatalentoquefugiuaportugaltemmuitapersonalidade": "2026-10-05T11:57:24+00:00"
  },
- "sent": []
+ "sent": [
+  {
+   "headline_ru": "Забастовка бортпроводников easyJet привела к отмене почти 370 рейсов, и последствия будут ощущаться до пятницы",
+   "post": true,
+   "source": "ECO",
+   "title_pt": "Greve na easyJet cancelou quase 370 voos e impacto deve manter-se até sexta",
+   "ts": "2026-10-05T12:07:43+00:00",
+   "url": "https://eco.sapo.pt/2026/10/05/greve-na-easyjet-cancelou-quase-370-voos-e-impacto-deve-manter-se-ate-sexta/"
+  },
+  {
+   "headline_ru": "Шведского яхтсмена спасли у мыса Кабо-да-Рока после пожара на паруснике 🧡",
+   "post": true,
+   "source": "Notícias ao Minuto",
+   "title_pt": "Homem resgatado após incêndio em veleiro perto do Cabo da Roca",
+   "ts": "2026-10-05T12:07:55+00:00",
+   "url": "https://www.noticiasaominuto.com/pais/3061816/homem-resgatado-apos-incendio-em-veleiro-perto-do-cabo-da-roca"
+  }
+ ]
 }
