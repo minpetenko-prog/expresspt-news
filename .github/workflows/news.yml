@@ -1,12 +1,16 @@
 name: ExpressPT news
 
+# Как запускается: каждый запуск в конце ждёт следующего «слота» (:07 или :37 UTC)
+# и сам запускает следующий. Расписание GitHub (schedule) — запасной вариант:
+# если цепочка оборвётся, оно её перезапустит. Вручную — кнопка Run workflow.
 on:
   schedule:
-    - cron: "7,37 * * * *"   # каждые 30 минут (UTC); GitHub может задерживать запуск на 5–15 минут
-  workflow_dispatch: {}       # ручной запуск кнопкой Run workflow
+    - cron: "7,37 * * * *"
+  workflow_dispatch: {}
 
 permissions:
   contents: write             # чтобы сохранять состояние в папку state/
+  actions: write              # чтобы запускать следующий запуск
 
 concurrency:
   group: news
@@ -15,7 +19,7 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 50
     env:
       TP_CHAT: ${{ secrets.TRUEPORTUGAL_CHAT_ID }}   # пока секрета нет, шаг @trueportugal пропускается
     steps:
@@ -55,3 +59,22 @@ jobs:
           git config user.email "news-bot@users.noreply.github.com"
           git add state/
           git diff --cached --quiet || (git commit -m "state: $(date -u +%FT%H:%M)" && git pull --rebase && git push)
+
+      - name: Дождаться следующего запуска и запустить его
+        if: ${{ !cancelled() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          m=$(date -u +%-M); s=$(date -u +%-S)
+          if [ "$m" -lt 7 ]; then t=7; elif [ "$m" -lt 37 ]; then t=37; else t=67; fi
+          wait=$(( (t - m) * 60 - s )); [ "$wait" -lt 1 ] && wait=1
+          echo "Следующий запуск через $wait с"
+          sleep "$wait"
+          # не плодим параллельные цепочки: если уже есть другой запуск — ничего не делаем
+          others=$(gh api "repos/${{ github.repository }}/actions/workflows/news.yml/runs?per_page=20" \
+            --jq '[.workflow_runs[] | select(.id != ${{ github.run_id }}) | select(.status=="queued" or .status=="in_progress" or .status=="waiting" or .status=="pending")] | length')
+          if [ "$others" = "0" ]; then
+            gh workflow run news.yml -R "${{ github.repository }}" --ref main && echo "Следующий запуск поставлен"
+          else
+            echo "Уже есть другой запуск ($others) — следующий не ставлю"
+          fi
