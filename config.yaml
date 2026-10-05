@@ -1,31 +1,30 @@
-# Настройки парсера новостей для @trueportugal («Португалия без розовых очков»)
+# Настройки парсера новостей для @ExpressPT
 
 settings:
-  # Название канала в служебных сообщениях бота
-  channel: "@trueportugal"
   # Новости старше этого возраста не берём (по дате из ленты)
   max_age_hours: 12
   # Сколько готовых постов максимум присылать за один запуск (раз в 30 минут) и за сутки
-  max_posts_per_run: 3
-  max_posts_per_day: 8
+  max_posts_per_run: 4
+  max_posts_per_day: 15
   # Ночью посты не присылаются, утром приходят лучшие за ночь (время Лиссабона)
   quiet_hours: "23-7"
   # Не присылать посты, если удалось прочитать только анонс (платные статьи)
   require_full_text: true
-  # Ссылка на источник — на слове внутри текста, как в канале
-  source_link: inline
-  # Подпись в конце каждого поста (название канала — ссылка)
-  signature: "Оставайтесь с Португалия без розовых очков 🇵🇹"
-  signature_html: 'Оставайтесь с <a href="https://t.me/trueportugal">Португалия без розовых очков</a>🇵🇹'
-  # Показывать превью ссылки на источник под постом
+  # Подпись в конце каждого поста
+  signature: "@ExpressPT 🇵🇹"
+  # Показывать превью ссылки на источник под постом (как в канале)
   link_preview: true
-  # Модели Claude
-  select_model: claude-haiku-4-5-20251001
-  write_model: claude-sonnet-5-5
+  # Модели Claude (используются, только если задан ANTHROPIC_API_KEY)
+  select_model: claude-haiku-4-5-20251001   # отбор новостей — дешёвая модель
+  write_model: claude-sonnet-5-5            # переписывание — модель посильнее
   # Сколько запусков подряд источник может падать, прежде чем бот предупредит в чат
   alert_after_failures: 6
 
-# Источники — как у @ExpressPT, но без Correio da Manhã и плюс Lisboa Secreta, Meteored, Razão Automóvel
+# Источники. type: rss | publico_json | html
+# Для html: link_pattern — регулярное выражение для ссылок на статьи.
+# fallback — запасные способы, если основной не сработал.
+# user_agent — представиться программой для чтения RSS: некоторые сайты пускают
+# такие запросы, а обычный «браузер» с серверного адреса блокируют.
 sources:
   - id: eco
     name: ECO
@@ -130,31 +129,11 @@ sources:
     type: rss
     url: https://www.nit.pt/feed
 
-  - id: lisboasecreta
-    name: Lisboa Secreta
+  - id: cmjornal
+    name: Correio da Manhã
     type: rss
-    url: https://lisboasecreta.co/feed/
-    fallback:
-      - type: rss
-        url: https://lisboasecreta.co/feed/
-        user_agent: "Feedly/1.0 (+http://www.feedly.com/fetcher.html; like FeedFetcher-Google)"
-      - type: wp_json
-        url: https://lisboasecreta.co/wp-json/wp/v2/posts?per_page=20
-      - type: wp_json
-        url: https://lisboasecreta.co/wp-json/wp/v2/posts?per_page=20
-        user_agent: "Feedly/1.0 (+http://www.feedly.com/fetcher.html; like FeedFetcher-Google)"
-
-  - id: meteored
-    name: Meteored
-    type: html
-    url: https://www.meteored.com/pt/noticias
-    link_pattern: 'tempo\.(?:pt|com)/noticias/[a-z0-9-]+/[a-z0-9-]+\.html'
-
-  - id: razaoautomovel
-    name: Razão Automóvel
-    type: rss
-    url: https://www.razaoautomovel.com/feed/
+    url: https://www.cmjornal.pt/rss
     fallback:
       - type: html
-        url: https://www.razaoautomovel.com/
-        link_pattern: 'razaoautomovel\.com/(?:noticias|ensaios|guias|lancamentos)/[a-z0-9-]+'
+        url: https://www.cmjornal.pt/
+        link_pattern: 'cmjornal\.pt/[a-z-]+/(?:[a-z-]+/)?detalhe/'
