@@ -448,3 +448,13 @@ def test_banksta_style_inline_signature():
                    "https://eco.sapo.pt/a", "@ExpressPT 🇵🇹", signature_inline=True)
     assert post.html == ('<a href="https://eco.sapo.pt/a">💶</a> Ставка по вкладам выросла до 1,55%. '
                          'В еврозоне — 2,09%. @ExpressPT 🇵🇹')
+
+
+def test_model_added_signature_is_removed():
+    for text in ["Цены снизят со вторника. @ExpressPT 🇵🇹",
+                 "Цены снизят со вторника.\n\n@ExpressPT 🇵🇹",
+                 "Цены снизят со вторника. @ExpressPT 🇵🇹\n\n@ExpressPT 🇵🇹"]:
+        post = compose("⛽", text, "https://sapo.pt/a", "@ExpressPT 🇵🇹")
+        assert post.html == '<a href="https://sapo.pt/a">⛽</a> Цены снизят со вторника.\n\n@ExpressPT 🇵🇹'
+    tp = compose("🎉", "Текст.\n\nОставайтесь с Португалия без розовых очков 🇵🇹", "https://x", "", "inline", TP_SIG)
+    assert tp.html.count("Оставайтесь") == 1

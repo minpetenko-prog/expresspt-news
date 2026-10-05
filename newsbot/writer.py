@@ -87,6 +87,15 @@ def md_to_tg_html(text: str, source_url: str | None = None) -> tuple[str, bool]:
     return out, placed
 
 
+def strip_signature(body: str, signature: str) -> str:
+    """Убирает подпись канала, если модель дописала её сама (бот добавляет подпись отдельно)."""
+    if signature and signature.strip():
+        body = body.replace(signature.strip(), "")
+    # хвостовые строки вида «@ExpressPT 🇵🇹» или «Оставайтесь с …»
+    body = re.sub(r"(?:\s*(?:@\w+|Оставайтесь с[^\n]*)\s*(?:🇵🇹)?\s*)+$", "", body.rstrip())
+    return body.rstrip()
+
+
 def compose(emoji: str, text: str, url: str, signature: str, source_link: str = "emoji",
             signature_html: str | None = None, signature_inline: bool = False) -> Post:
     """source_link: "emoji" — ссылка на эмодзи в начале (как в @ExpressPT);
@@ -94,6 +103,7 @@ def compose(emoji: str, text: str, url: str, signature: str, source_link: str = 
     Если модель забыла пометить слово, ссылка ставится на эмодзи, чтобы источник не потерялся."""
     emoji = (emoji or "🇵🇹").strip().split()[0]
     body = EMOJI_PREFIX.sub("", text.strip())  # если модель всё же поставила эмодзи в начало
+    body = strip_signature(body, signature)    # если модель сама дописала подпись канала
     linked_emoji = f'<a href="{html.escape(url, quote=True)}">{emoji}</a>'
     if source_link == "inline":
         body_html, placed = md_to_tg_html(body, url)

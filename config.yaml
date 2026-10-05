@@ -12,11 +12,10 @@ settings:
   require_full_text: true
   # Максимальная длина поста в знаках: длиннее — бот попросит Claude сократить
   max_chars: 600
-  # Подпись в конце каждого поста — в конце последней строки, как в @banksta
+  # Подпись — отдельной строкой в конце поста
   signature: "@ExpressPT 🇵🇹"
-  signature_inline: true
-  # Показывать превью ссылки на источник под постом (как в канале)
-  link_preview: true
+  # Превью ссылки на источник под постом: false — скрыто
+  link_preview: false
   # Модели Claude (используются, только если задан ANTHROPIC_API_KEY)
   select_model: claude-haiku-4-5-20251001   # отбор новостей — дешёвая модель
   write_model: claude-sonnet-5-5            # переписывание — модель посильнее
