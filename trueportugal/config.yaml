@@ -1,149 +1,62 @@
-# Настройки парсера новостей для @trueportugal («Португалия без розовых очков»)
+# Темы для отбора новостей в @trueportugal («Португалия без розовых очков»).
+# ЧЕРНОВИК по последним постам канала — поправь под себя.
+#
+# description — главное: по ней Claude решает, брать новость или нет.
+# keywords — запасной вариант на случай, если ключ API не задан.
 
-settings:
-  # Новости старше этого возраста не берём (по дате из ленты)
-  max_age_hours: 12
-  # Сколько готовых постов максимум присылать за один запуск (раз в 30 минут) и за сутки
-  max_posts_per_run: 3
-  max_posts_per_day: 8
-  # Ночью посты не присылаются, утром приходят лучшие за ночь (время Лиссабона)
-  quiet_hours: "23-7"
-  # Не присылать посты, если удалось прочитать только анонс (платные статьи)
-  require_full_text: true
-  # Ссылка на источник — на слове внутри текста, как в канале
-  source_link: inline
-  # Подпись в конце каждого поста (название канала — ссылка)
-  signature: "Оставайтесь с Португалия без розовых очков 🇵🇹"
-  signature_html: 'Оставайтесь с <a href="https://t.me/trueportugal">Португалия без розовых очков</a>🇵🇹'
-  # Показывать превью ссылки на источник под постом
-  link_preview: true
-  # Модели Claude
-  select_model: claude-haiku-4-5-20251001
-  write_model: claude-sonnet-5-5
-  # Сколько запусков подряд источник может падать, прежде чем бот предупредит в чат
-  alert_after_failures: 6
+audience: >
+  «Португалия без розовых очков» — личный канал русскоязычной жительницы Португалии
+  (12 лет в стране): жизнь, новости, места, еда, язык. Читатели — русскоязычные жители
+  и те, кто думает о переезде. Нужны новости, о которых интересно и полезно рассказать
+  от первого лица: что изменится в жизни, сколько стоит, куда поехать, что посмотреть,
+  чем удивляет Португалия. Сухие политические и криминальные новости публикуются в другом
+  канале (@ExpressPT), здесь их не брать.
 
-# Источники — как у @ExpressPT, но без Correio da Manhã и плюс Lisboa Secreta, Meteored, Razão Automóvel
-sources:
-  - id: eco
-    name: ECO
-    type: rss
-    url: https://eco.sapo.pt/feed/
+topics:
+  - name: Деньги и жильё
+    description: >
+      цены на жильё и аренду, рейтинги рынка недвижимости, ставки, налоги, зарплаты, цены
+      в магазинах — когда это касается каждого и про это можно понятно рассказать
+    keywords: [habitacao, rendas, arrendamento, imobiliario, casas, precos, juros, euribor, irs,
+               salario minimo, impostos]
 
-  - id: observador
-    name: Observador
-    type: rss
-    url: https://observador.pt/feed/
+  - name: Дороги, транспорт и автомобили
+    description: >
+      новые правила для водителей, платные дороги и сборы, штрафы, бензин, общественный
+      транспорт и проездные, аэропорты; автомобили, которые продаются или производятся
+      в Португалии, заметные новинки рынка
+    keywords: [portagens, condutores, codigo da estrada, multas, combustiveis, gasolina, passe,
+               metro, comboios, aeroporto, autoeuropa, carro mais vendido]
 
-  - id: dn
-    name: Diário de Notícias
-    type: rss
-    url: https://www.dn.pt/feed
+  - name: Куда сходить и что посмотреть
+    description: >
+      музеи и памятники (цены, бесплатные дни, открытие после ремонта), фестивали, события,
+      новые интересные места, пляжи, природные явления (волны в Назаре, затмения, звездопады),
+      поездки по Португалии, местная еда и праздники
+    keywords: [museu, festival, gratuito, entrada gratis, reabre, nazare, praia, eclipse,
+               feriado, mercado, restaurante, miradouro]
 
-  - id: rtp
-    name: RTP Notícias
-    type: rss
-    url: https://www.rtp.pt/noticias/rss
+  - name: Португалия в мире
+    description: >
+      рейтинги и рекорды, где упоминается Португалия или Лиссабон (лучший город, самый
+      счастливый, самый дорогой), «сделано в Португалии», португальцы, о которых говорят
+    keywords: [ranking, melhor destino, recorde, feito em portugal, lisboa e o, portugal e o]
 
-  - id: lusa
-    name: Lusa
-    type: html
-    url: https://www.lusa.pt/
-    link_pattern: 'lusa\.pt/article/\d+/'
+  - name: Погода и природа
+    description: >
+      предупреждения IPMA, шторма и их имена, жара, первые холода, необычные погодные и
+      природные явления в Португалии, то, что стоит знать перед выходными
+    keywords: [ipma, aviso, tempestade, onda de calor, chuva, frio, sismo, ondas gigantes]
 
-  - id: publico
-    name: Público
-    type: publico_json
-    url: https://www.publico.pt/api/list/ultimas
-    fallback:
-      - type: rss
-        url: https://feeds.feedburner.com/PublicoRSS
+  - name: Правила и документы
+    description: >
+      новые законы и правила, которые меняют повседневную жизнь жителей и иммигрантов:
+      AIMA, ВНЖ, гражданство, SNS, школы — только с понятным практическим смыслом
+    keywords: [aima, nacionalidade, autorizacao de residencia, nova lei, sns, escolas]
 
-  - id: publico_brasil
-    name: Público Brasil
-    type: publico_json
-    url: https://www.publico.pt/api/list/publico-brasil
-
-  - id: sic
-    name: SIC Notícias
-    type: rss
-    url: https://feeds.feedburner.com/sicnoticias-ultimas
-    fallback:
-      - type: rss
-        url: https://sicnoticias.pt/rss
-
-  - id: negocios
-    name: Jornal de Negócios
-    type: rss
-    url: https://www.jornaldenegocios.pt/rss
-
-  - id: sapo
-    name: SAPO
-    type: rss
-    url: https://www.sapo.pt/feed
-    fallback:
-      - type: html
-        url: https://www.sapo.pt/noticias/atualidade
-        link_pattern: 'sapo\.pt/.+/artigos/'
-
-  - id: idealista
-    name: idealista/news
-    type: rss
-    url: https://www.idealista.pt/news/rss/v2/latest-news.xml
-    fallback:
-      # сайт блокирует серверы GitHub, поэтому берём его новости через Google News
-      # (ссылки будут вести через news.google.com и открываться в браузере как обычно)
-      - type: rss
-        url: https://news.google.com/rss/search?q=site:idealista.pt/news+when:2d&hl=pt-PT&gl=PT&ceid=PT:pt-150
-        title_strip: '\s+-\s+idealista.*$'
-
-  - id: noticiasaominuto
-    name: Notícias ao Minuto
-    type: rss
-    url: https://www.noticiasaominuto.com/rss/ultima-hora
-    fallback:
-      - type: html
-        url: https://www.noticiasaominuto.com/
-        link_pattern: 'noticiasaominuto\.com/[a-z-]+/\d+/'
-
-  - id: expresso
-    name: Expresso
-    type: rss
-    url: https://expresso.pt/rss
-    fallback:
-      - type: rss
-        url: https://expresso.pt/rss
-        user_agent: "Feedly/1.0 (+http://www.feedly.com/fetcher.html; like FeedFetcher-Google)"
-      - type: rss
-        url: https://feeds.feedburner.com/expresso-geral
-
-  - id: tempo
-    name: tempo.pt
-    type: html
-    url: https://www.tempo.pt/
-    link_pattern: 'tempo\.pt/noticias/[a-z0-9-]+/[a-z0-9-]+\.html'
-
-  - id: nit
-    name: NiT
-    type: rss
-    url: https://www.nit.pt/feed
-
-  - id: lisboasecreta
-    name: Lisboa Secreta
-    type: rss
-    url: https://lisboasecreta.co/feed/
-
-  - id: meteored
-    name: Meteored
-    type: html
-    url: https://www.meteored.com/pt/noticias
-    link_pattern: 'tempo\.(?:pt|com)/noticias/[a-z0-9-]+/[a-z0-9-]+\.html'
-
-  - id: razaoautomovel
-    name: Razão Automóvel
-    type: rss
-    url: https://www.razaoautomovel.com/feed/
-    fallback:
-      - type: html
-        url: https://www.razaoautomovel.com/
-        link_pattern: 'razaoautomovel\.com/(?:noticias|ensaios|guias|lancamentos)/[a-z0-9-]+'
+exclude:
+  description: >
+    политика без практических последствий, криминальная хроника и происшествия — пожары, ДТП,
+    спасения, несчастные случаи (кроме событий, которые затрагивают многих людей), спорт (кроме исторических событий), шоу-бизнес и светская хроника, курьёзы и
+    новости о других странах без связи с Португалией, наука и космос без связи с Португалией
+  keywords: [benfica, sporting, fc porto, liga betclic, horoscopo, novela, big brother]
