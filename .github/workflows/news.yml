@@ -70,11 +70,9 @@ jobs:
           wait=$(( (t - m) * 60 - s )); [ "$wait" -lt 1 ] && wait=1
           echo "Следующий запуск через $wait с"
           sleep "$wait"
-          # не плодим параллельные цепочки: если уже есть другой запуск — ничего не делаем
-          others=$(gh api "repos/${{ github.repository }}/actions/workflows/news.yml/runs?per_page=20" \
-            --jq '[.workflow_runs[] | select(.id != ${{ github.run_id }}) | select(.status=="queued" or .status=="in_progress" or .status=="waiting" or .status=="pending")] | length')
-          if [ "$others" = "0" ]; then
-            gh workflow run news.yml -R "${{ github.repository }}" --ref main && echo "Следующий запуск поставлен"
-          else
-            echo "Уже есть другой запуск ($others) — следующий не ставлю"
-          fi
+          # Ставим следующий запуск всегда. Дублей не будет: группа concurrency «news»
+          # держит не больше одного ожидающего запуска, лишний GitHub отменит сам.
+          for attempt in 1 2 3; do
+            gh workflow run news.yml -R "${{ github.repository }}" --ref main && { echo "Следующий запуск поставлен"; break; }
+            echo "Не удалось поставить запуск (попытка $attempt), повтор через 20 с"; sleep 20
+          done
