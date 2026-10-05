@@ -123,6 +123,10 @@ def _cfg():
     cfg = yaml.safe_load((ROOT / "config.yaml").read_text(encoding="utf-8"))
     cfg["sources"] = [SRC, {"id": "dead", "name": "Dead", "type": "rss", "url": "https://dead"}]
     cfg["settings"]["alert_after_failures"] = 2
+    cfg["settings"].pop("batch_times", None)        # выпуски проверяются отдельными тестами
+    cfg["settings"]["quiet_hours"] = "23-7"
+    cfg["settings"]["max_posts_per_run"] = 4
+    cfg["settings"]["max_posts_per_day"] = 15
     return cfg
 
 
@@ -458,3 +462,64 @@ def test_model_added_signature_is_removed():
         assert post.html == '<a href="https://sapo.pt/a">⛽</a> Цены снизят со вторника.\n\n@ExpressPT 🇵🇹'
     tp = compose("🎉", "Текст.\n\nОставайтесь с Португалия без розовых очков 🇵🇹", "https://x", "", "inline", TP_SIG)
     assert tp.html.count("Оставайтесь") == 1
+
+
+
+# ---------- выпуски 09:00 и 13:00 по Лиссабону ----------
+
+def test_due_batch_windows_and_dst():
+    from newsbot.run import due_batch
+    T = ["09:00", "13:00"]
+    utc = lambda *a: datetime(*a, tzinfo=timezone.utc)
+    # лето (Лиссабон = UTC+1)
+    assert due_batch(utc(2026, 10, 5, 7, 50), T, None) is None              # 08:50 — рано
+    assert due_batch(utc(2026, 10, 5, 8, 2), T, None) == "2026-10-05 09:00"
+    assert due_batch(utc(2026, 10, 5, 8, 2), T, "2026-10-05 09:00") is None   # уже сделан
+    assert due_batch(utc(2026, 10, 5, 10, 30), T, None) == "2026-10-05 09:00" # опоздали, но в окне
+    assert due_batch(utc(2026, 10, 5, 11, 30), T, None) is None             # 12:30 — окно закрыто
+    assert due_batch(utc(2026, 10, 5, 12, 12), T, "2026-10-05 09:00") == "2026-10-05 13:00"
+    assert due_batch(utc(2026, 10, 5, 20, 0), T, None) is None
+    # зима (Лиссабон = UTC)
+    assert due_batch(utc(2026, 11, 5, 8, 2), T, None) is None
+    assert due_batch(utc(2026, 11, 5, 9, 2), T, None) == "2026-11-05 09:00"
+
+
+def _batch_setup(tmp_path, extra):
+    cfg = yaml.safe_load((ROOT / "config.yaml").read_text(encoding="utf-8"))
+    cfg["sources"] = [{"id": "x", "name": "ECO", "type": "rss", "url": "https://x"}]
+    state = State(tmp_path / "s.json")
+    state.bootstrapped, state.known_sources = True, ["x"]
+    fetch = lambda session, src: list(extra)
+    return cfg, state, fetch
+
+
+def test_morning_batch_takes_only_todays_news(tmp_path):
+    morning = datetime(2026, 10, 6, 8, 5, tzinfo=timezone.utc)        # 09:05 Лиссабон
+    today = Item("x", "ECO", "https://x/irs-hoje", "IRS hoje muda", published=datetime(2026, 10, 6, 6, 0, tzinfo=timezone.utc))
+    yesterday = Item("x", "ECO", "https://x/irs-ontem", "IRS ontem muda", published=datetime(2026, 10, 5, 21, 0, tzinfo=timezone.utc))
+    undated_old = Item("x", "ECO", "https://x/irs-velho", "IRS sem data")
+
+    def article(session, item):
+        if item is undated_old:                                       # дата нашлась в самой статье
+            item.published = datetime(2026, 10, 5, 0, 0, tzinfo=timezone.utc)
+        return "x" * 700, True
+
+    cfg, state, fetch = _batch_setup(tmp_path, [today, yesterday, undated_old])
+    sender = DryRun()
+    st = run(cfg, {"topics": []}, "I", state, None, sender, client=FakeClient(), now=morning,
+             fetch=fetch, article=article)
+    assert st["sent"] == 1 and state.last_batch == "2026-10-06 09:00"
+    assert all(not state.is_new(i) for i in (today, yesterday, undated_old))
+
+    # повторный запуск в 09:20 — выпуск уже сделан, ничего не происходит
+    sender2 = DryRun()
+    st2 = run(cfg, {"topics": []}, "I", state, None, sender2, client=FakeClient(),
+              now=datetime(2026, 10, 6, 8, 20, tzinfo=timezone.utc), fetch=fetch, article=article)
+    assert st2["sent"] == 0 and sender2.sent == []
+
+    # вне выпуска (17:00) — ничего не делаем, даже не собираем
+    called = []
+    run(cfg, {"topics": []}, "I", state, None, DryRun(), client=FakeClient(),
+        now=datetime(2026, 10, 6, 16, 0, tzinfo=timezone.utc),
+        fetch=lambda s, src: called.append(1) or [], article=article)
+    assert called == []

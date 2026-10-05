@@ -6,7 +6,12 @@ import logging
 import requests
 import trafilatura
 
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 from .fetchers import Item, http_get
+
+LISBON = ZoneInfo("Europe/Lisbon")
 
 log = logging.getLogger(__name__)
 
@@ -18,6 +23,15 @@ def get_article_text(session: requests.Session, item: Item) -> tuple[str, bool]:
     """Возвращает (текст, есть_ли_полный_текст)."""
     try:
         html = http_get(session, item.url).text
+        if item.published is None:
+            # у новостей со страниц (Lusa, tempo.pt…) нет даты в ленте — берём её из статьи
+            try:
+                meta = trafilatura.extract_metadata(html)
+                if meta and meta.date:
+                    d = datetime.strptime(meta.date[:10], "%Y-%m-%d")
+                    item.published = d.replace(tzinfo=LISBON)
+            except Exception:  # noqa: BLE001
+                pass
         text = trafilatura.extract(html, include_comments=False, include_tables=True,
                                    favor_precision=True) or ""
         if len(text) >= MIN_FULL:

@@ -25,6 +25,7 @@ class State:
         self.failures: dict[str, int] = data.get("failures", {})   # источник -> падений подряд
         # источники, которые уже отдавали новости; None — старое состояние без этого поля
         self.known_sources: list[str] | None = data.get("known_sources")
+        self.last_batch: str | None = data.get("last_batch")   # последний сделанный выпуск
 
     @classmethod
     def load(cls, path: Path) -> "State":
@@ -37,7 +38,7 @@ class State:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         data = {"bootstrapped": self.bootstrapped, "seen": self.seen,
                 "sent": self.sent, "failures": self.failures,
-                "known_sources": self.known_sources}
+                "known_sources": self.known_sources, "last_batch": self.last_batch}
         self.path.write_text(json.dumps(data, ensure_ascii=False, indent=1, sort_keys=True),
                              encoding="utf-8")
 

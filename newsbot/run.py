@@ -50,6 +50,13 @@ def run(cfg: dict, topics: dict, instructions: str, state: State, session, sende
         article=get_article_text, bootstrap: bool = True) -> dict:
     s = cfg["settings"]
     now = now or datetime.now(timezone.utc)
+    batch = None
+    if s.get("batch_times") and state.bootstrapped:
+        batch = due_batch(now, s["batch_times"], state.last_batch)
+        if batch is None:
+            log.info("сейчас не время выпуска (%s) — ничего не делаю", ", ".join(s["batch_times"]))
+            return {"sources_ok": 0, "sources": len(cfg["sources"]), "new": 0, "sent": 0, "batch": None}
+        log.info("выпуск %s", batch)
     items, alerts, ok = collect(cfg, session, state, fetch)
     for a in alerts:
         sender.send(a, preview=False)
@@ -82,21 +89,28 @@ def run(cfg: dict, topics: dict, instructions: str, state: State, session, sende
         return stats
 
     cutoff = now - timedelta(hours=s.get("max_age_hours", 12))
+    if batch:
+        # в выпуск идут только новости сегодняшнего дня (по Лиссабону), вчерашние — нет
+        cutoff = max(cutoff, start_of_day(now))
     fresh = sorted((it for it in new if it.published is None or it.published >= cutoff),
                    key=_sort_key, reverse=True)
     stale = [it for it in new if it not in fresh]
     state.mark_seen(stale)
     if not fresh:
+        if batch:
+            state.last_batch = batch
         return stats
 
-    if in_quiet_hours(now, s.get("quiet_hours")):
+    if not batch and in_quiet_hours(now, s.get("quiet_hours")):
         # ночью ничего не шлём и не помечаем прочитанным — утром отберём лучшее за ночь
         log.info("тихие часы — отправка отложена")
         return stats
 
     postpone: list[Item] = []
     if client is not None:
-        posts_today = sum(1 for x in state.recent_sent(24) if x.get("post"))
+        day_start = start_of_day(now)
+        posts_today = sum(1 for x in state.recent_sent(24) if x.get("post")
+                          and datetime.fromisoformat(x["ts"]) >= day_start)
         budget = min(s.get("max_posts_per_run", 5),
                      max(0, s.get("max_posts_per_day", 15) - posts_today))
         picks = llm_select(client, s["select_model"], fresh, topics, state.recent_sent()) if budget else []
@@ -106,6 +120,9 @@ def run(cfg: dict, topics: dict, instructions: str, state: State, session, sende
                 postpone.extend(x.item for x in picks[idx:])  # рассмотрим в следующий запуск
                 break
             text, full = article(session, p.item)
+            if batch and p.item.published is not None and p.item.published < cutoff:
+                log.info("пропущено, новость не сегодняшняя: %s", p.item.url)
+                continue
             if not full and s.get("require_full_text", True):
                 log.info("пропущено, нет полного текста: %s", p.item.url)
                 continue
@@ -136,8 +153,34 @@ def run(cfg: dict, topics: dict, instructions: str, state: State, session, sende
                 state.add_sent(p.item, p.item.title)
             stats["sent"] = len(picks)
 
-    state.mark_seen([it for it in fresh if it not in postpone])
+    if batch:
+        # всё, что не вошло в выпуск, считаем прочитанным: следующий выпуск — только новое
+        state.mark_seen(fresh)
+        state.last_batch = batch
+    else:
+        state.mark_seen([it for it in fresh if it not in postpone])
     return stats
+
+
+def due_batch(now: datetime, times: list[str], done: str | None,
+              tz: str = "Europe/Lisbon", window_hours: int = 3) -> str | None:
+    """Какой выпуск пора делать: последний наступивший сегодня (по Лиссабону), если он ещё
+    не сделан и с его времени прошло не больше window_hours. Возвращает ключ «YYYY-MM-DD HH:MM»."""
+    from zoneinfo import ZoneInfo
+    local = now.astimezone(ZoneInfo(tz))
+    due = None
+    for t in sorted(times):
+        h, m = (int(x) for x in t.split(":"))
+        slot = local.replace(hour=h, minute=m, second=0, microsecond=0)
+        if slot <= local < slot + timedelta(hours=window_hours):
+            due = f"{local:%Y-%m-%d} {t}"
+    return due if due and due != done else None
+
+
+def start_of_day(now: datetime, tz: str = "Europe/Lisbon") -> datetime:
+    from zoneinfo import ZoneInfo
+    local = now.astimezone(ZoneInfo(tz))
+    return local.replace(hour=0, minute=0, second=0, microsecond=0)
 
 
 def in_quiet_hours(now: datetime, spec: str | None, tz: str = "Europe/Lisbon") -> bool:

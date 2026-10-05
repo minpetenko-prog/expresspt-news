@@ -1,16 +1,16 @@
 name: ExpressPT news
 
-# Как запускается: каждый запуск в конце ждёт следующего «слота» (:13 или :43 UTC)
-# и сам запускает следующий. Расписание GitHub (schedule) — запасной вариант:
-# если цепочка оборвётся, оно её перезапустит. Вручную — кнопка Run workflow.
+# Выпуски: 09:00 и 13:00 по Лиссабону (время задаётся в config.yaml → batch_times).
+# GitHub умеет расписание только в UTC и часто опаздывает, поэтому запуск стоит
+# несколько раз в нужные часы (8–9 и 12–13 UTC — это 9:00 и 13:00 по Лиссабону и летом,
+# и зимой). Бот сам решает, пора ли делать выпуск; лишние запуски ничего не делают.
 on:
   schedule:
-    - cron: "13,43 * * * *"
+    - cron: "2,12,22,32,47 8,9,12,13 * * *"
   workflow_dispatch: {}
 
 permissions:
   contents: write             # чтобы сохранять состояние в папку state/
-  actions: write              # чтобы запускать следующий запуск
 
 concurrency:
   group: news
@@ -19,7 +19,7 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 50
+    timeout-minutes: 20
     env:
       TP_CHAT: ${{ secrets.TRUEPORTUGAL_CHAT_ID }}   # пока секрета нет, шаг @trueportugal пропускается
     steps:
@@ -59,20 +59,3 @@ jobs:
           git config user.email "news-bot@users.noreply.github.com"
           git add state/
           git diff --cached --quiet || (git commit -m "state: $(date -u +%FT%H:%M)" && git pull --rebase && git push)
-
-      - name: Дождаться следующего запуска и запустить его
-        if: ${{ !cancelled() }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          m=$(date -u +%-M); s=$(date -u +%-S)
-          if [ "$m" -lt 13 ]; then t=13; elif [ "$m" -lt 43 ]; then t=43; else t=73; fi
-          wait=$(( (t - m) * 60 - s )); [ "$wait" -lt 1 ] && wait=1
-          echo "Следующий запуск через $wait с"
-          sleep "$wait"
-          # Ставим следующий запуск всегда. Дублей не будет: группа concurrency «news»
-          # держит не больше одного ожидающего запуска, лишний GitHub отменит сам.
-          for attempt in 1 2 3; do
-            gh workflow run news.yml -R "${{ github.repository }}" --ref main && { echo "Следующий запуск поставлен"; break; }
-            echo "Не удалось поставить запуск (попытка $attempt), повтор через 20 с"; sleep 20
-          done
