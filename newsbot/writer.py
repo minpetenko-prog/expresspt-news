@@ -35,10 +35,18 @@ class Post:
     headline: str  # первая фраза без разметки — для истории и защиты от повторов
 
 
-def build_write_prompt(item: Item, text: str, full: bool, published_str: str) -> str:
+def build_write_prompt(item: Item, text: str, full: bool, published_str: str,
+                       recent: list[str] | None = None) -> str:
     note = ("" if full else
             "\nВНИМАНИЕ: полного текста нет (платная статья или сайт недоступен), есть только "
             "заголовок и анонс. Напиши короткий пост из 2–3 предложений строго по этим данным.\n")
+    recent_txt = ""
+    if recent:
+        recent_txt = ("\nУже опубликовано в канале за последние дни:\n" +
+                      "\n".join(f"- {h}" for h in recent[-40:]) +
+                      "\nЕсли эта новость — о том же событии, что и одна из уже опубликованных "
+                      "(даже из другого издания и другими словами), ответь publish=false "
+                      "с причиной «повтор», если в ней нет важных новых фактов.\n")
     return f"""Издание: {item.source_name}
 Ссылка: {item.url}
 Дата публикации: {published_str}
@@ -47,6 +55,7 @@ def build_write_prompt(item: Item, text: str, full: bool, published_str: str) ->
 Текст:
 {text}
 
+{recent_txt}
 Напиши пост для канала по инструкциям. Ответ — JSON с полями publish, reason, emoji, text."""
 
 
@@ -96,10 +105,12 @@ def compose(emoji: str, text: str, url: str, signature: str, source_link: str = 
 
 
 def write_post(client, model: str, instructions: str, item: Item, text: str, full: bool,
-               signature: str, source_link: str = "emoji", signature_html: str | None = None) -> Post | None:
+               signature: str, source_link: str = "emoji", signature_html: str | None = None,
+               recent: list[str] | None = None) -> Post | None:
     published = item.published.strftime("%d.%m.%Y %H:%M UTC") if item.published else "неизвестна"
     result = call_tool(client, model, instructions,
-                       build_write_prompt(item, text, full, published), WRITE_TOOL, max_tokens=2500)
+                       build_write_prompt(item, text, full, published, recent), WRITE_TOOL,
+                       max_tokens=2500)
     if not result.get("publish") or not (result.get("text") or "").strip():
         log.info("пропущено «%s»: %s", item.title, result.get("reason", "—"))
         return None

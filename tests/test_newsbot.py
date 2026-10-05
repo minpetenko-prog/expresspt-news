@@ -402,3 +402,20 @@ def test_rss2json():
             "pubDate": "2026-10-05 11:24:59", "description": "<p>Resumo</p>", "content": "<p>Texto</p>"}]}
     (it,) = parse_rss2json(data, {"id": "ls", "name": "Lisboa Secreta"})
     assert it.url == "https://lisboasecreta.co/m/" and it.published.hour == 11 and it.content == "Texto"
+
+
+def test_writer_sees_recent_posts_for_dedupe(tmp_path):
+    seen_prompts = []
+
+    class DedupClient(FakeClient):
+        def create(self, **kw):
+            seen_prompts.append(kw["messages"][0]["content"])
+            return super().create(**kw)
+
+    extra = [Item("eco", "ECO", "https://eco.sapo.pt/irs-new/", "IRS noticia nova", published=NOW)]
+    cfg, topics, state, fetch = _api_setup(tmp_path, extra)
+    state.add_sent(Item("sapo", "SAPO", "https://x/1", "old"), "IPMA объявила оранжевый уровень", post=True)
+    run(cfg, topics, "I", state, None, DryRun(), client=DedupClient(), now=NOW, fetch=fetch,
+        article=lambda s, i: ("x" * 700, True))
+    write_prompts = [p for p in seen_prompts if p.startswith("Издание:")]
+    assert write_prompts and "IPMA объявила оранжевый уровень" in write_prompts[0] and "повтор" in write_prompts[0]
