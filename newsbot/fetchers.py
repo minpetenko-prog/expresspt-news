@@ -228,6 +228,25 @@ def parse_wp_json(data, src: dict) -> list[Item]:
     return items
 
 
+def parse_rss2json(data, src: dict) -> list[Item]:
+    """Лента, полученная через сервис rss2json.com (он скачивает RSS со своих серверов)."""
+    if not isinstance(data, dict) or data.get("status") != "ok" or not data.get("items"):
+        raise ValueError(f"rss2json: {str(data)[:150]}")
+    items = []
+    for row in data["items"]:
+        title, link = clean_text(row.get("title")), row.get("link")
+        if not title or not link:
+            continue
+        items.append(Item(
+            source_id=src["id"], source_name=src["name"], url=link, title=title,
+            summary=clean_text(row.get("description"))[:1500],
+            content=clean_text(row.get("content")),
+            published=parse_date((row.get("pubDate") or "").replace(" ", "T") + "+00:00"
+                                 if row.get("pubDate") else None),
+        ))
+    return items
+
+
 def parse_html_list(html: str, base_url: str, src: dict, limit: int = 40) -> list[Item]:
     pattern = re.compile(src["link_pattern"])
     soup = BeautifulSoup(html, "lxml")
@@ -260,6 +279,8 @@ def fetch_one(session: requests.Session, spec: dict, src: dict) -> list[Item]:
         return parse_publico_json(resp.json(), src)
     if kind == "wp_json":
         return parse_wp_json(resp.json(), src)
+    if kind == "rss2json":
+        return parse_rss2json(resp.json(), src)
     if kind == "html":
         return parse_html_list(resp.text, spec["url"], {**src, **spec})
     raise ValueError(f"неизвестный тип источника: {kind}")

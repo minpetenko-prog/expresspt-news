@@ -31,6 +31,19 @@ def load_yaml(path: Path) -> dict:
     return yaml.safe_load(path.read_text(encoding="utf-8"))
 
 
+def check_files(cfg, cfg_path: str, topics, topics_path: str) -> str | None:
+    """Понятная ошибка, если в файл вставлено не то содержимое."""
+    def first_line(path):
+        return Path(path).read_text(encoding="utf-8").splitlines()[0][:100] if Path(path).exists() else "—"
+    if not isinstance(cfg, dict) or "settings" not in cfg or "sources" not in cfg:
+        return (f"Файл {cfg_path} не похож на настройки: нет разделов settings и sources. "
+                f"Его первая строка: «{first_line(cfg_path)}». Похоже, туда вставлен не тот файл.")
+    if not isinstance(topics, dict) or "topics" not in topics:
+        return (f"Файл {topics_path} не похож на список тем: нет раздела topics. "
+                f"Его первая строка: «{first_line(topics_path)}». Похоже, туда вставлен не тот файл.")
+    return None
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="newsbot", description="Парсер новостей для @ExpressPT")
     ap.add_argument("--dry-run", action="store_true", help="печатать в консоль, ничего не отправлять и не сохранять")
@@ -45,6 +58,10 @@ def main(argv=None) -> int:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     cfg = load_yaml(Path(args.config))
     topics = load_yaml(Path(args.topics))
+    problem = check_files(cfg, args.config, topics, args.topics)
+    if problem:
+        print("ОШИБКА: " + problem, file=sys.stderr)
+        return 2
     instructions = Path(args.instructions).read_text(encoding="utf-8")
     session = make_session()
 
