@@ -87,15 +87,11 @@ sources:
     type: rss
     url: https://www.idealista.pt/news/rss/v2/latest-news.xml
     fallback:
+      # сайт блокирует серверы GitHub, поэтому берём его новости через Google News
+      # (ссылки будут вести через news.google.com и открываться в браузере как обычно)
       - type: rss
-        url: https://www.idealista.pt/news/rss/v2/latest-news.xml
-        user_agent: "Feedly/1.0 (+http://www.feedly.com/fetcher.html; like FeedFetcher-Google)"
-      - type: rss
-        url: https://www.idealista.pt/news/rss/v2/latest-news.xml
-        user_agent: "FeedFetcher-Google; (+http://www.google.com/feedfetcher.html)"
-      - type: html
-        url: https://www.idealista.pt/news/
-        link_pattern: 'idealista\.pt/news/[a-z0-9/-]+/\d{4}/\d{2}/\d{2}/'
+        url: https://news.google.com/rss/search?q=site:idealista.pt/news+when:2d&hl=pt-PT&gl=PT&ceid=PT:pt-150
+        title_strip: '\s+-\s+idealista.*$'
 
   - id: noticiasaominuto
     name: Notícias ao Minuto
@@ -134,5 +130,5 @@ sources:
     url: https://www.cmjornal.pt/rss
     fallback:
       - type: html
-        url: https://www.cmjornal.pt/ultima-hora
+        url: https://www.cmjornal.pt/
         link_pattern: 'cmjornal\.pt/[a-z-]+/(?:[a-z-]+/)?detalhe/'
