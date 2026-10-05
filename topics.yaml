@@ -1,0 +1,58 @@
+# Темы для отбора новостей. ЧЕРНОВИК — замени на свой список.
+#
+# description — для нейросети (режим с API-ключом): по ней Claude решает, подходит ли новость.
+# keywords — для режима без ключа: новость берётся, если в заголовке или анонсе
+#            есть хотя бы одно слово (регистр и диакритика не важны, можно писать без акцентов).
+
+audience: >
+  Русскоязычные жители Португалии и те, кто планирует переезд. Им важно то, что влияет
+  на жизнь, деньги, документы и быт в Португалии. Канал: «Главное об экономике и обществе».
+
+topics:
+  - name: Экономика и бизнес
+    description: макроэкономика, ВВП, инфляция, инвестиции, крупные компании и сделки, приватизации, TAP, банки
+    keywords: [economia, pib, inflacao, investimento, privatizacao, tap, banco de portugal, empresas, exportacoes, revolut]
+
+  - name: Налоги и соцвыплаты
+    description: IRS, IVA, бюджет, льготы, IRS Jovem, NHR, Segurança Social, пенсии, пособия, минимальная зарплата
+    keywords: [irs, iva, impostos, imposto, orcamento do estado, segurança social, seguranca social, pensoes, reforma, salario minimo, subsidio, ifici, nhr]
+
+  - name: Жильё и аренда
+    description: цены на жильё и аренду, ипотека, ставки, законы об аренде, программы жилья, рынок недвижимости
+    keywords: [habitacao, rendas, arrendamento, renda, imobiliario, casas, credito a habitacao, euribor, juros, senhorios, idealista]
+
+  - name: Иммиграция и документы
+    description: AIMA, ВНЖ, визы, гражданство, закон о гражданстве, золотые визы, легализация, иностранцы
+    keywords: [aima, imigrantes, imigracao, nacionalidade, autorizacao de residencia, vistos, visto gold, estrangeiros, cplp, sef]
+
+  - name: Транспорт и инфраструктура
+    description: аэропорты, новый аэропорт, CP, метро, Carris, забастовки транспорта, дороги, тарифы, проездные
+    keywords: [aeroporto, ana aeroportos, comboios, cp, metro, carris, portagens, passe, greve, ferrovia, alta velocidade]
+
+  - name: Здравоохранение и образование
+    description: SNS, больницы, INEM, очереди, врачи семейной медицины, школы, университеты, реформы
+    keywords: [sns, hospitais, hospital, inem, medicos de familia, urgencias, escolas, ensino, universidades, saude 24]
+
+  - name: Цены и потребители
+    description: цены на продукты, топливо, электричество, газ, связь, изменения тарифов, права потребителей
+    keywords: [precos, combustiveis, gasolina, gasoleo, eletricidade, tarifas, deco, cabaz, supermercados]
+
+  - name: Законы и решения властей
+    description: решения правительства и парламента, новые законы и правила, которые затрагивают жителей
+    keywords: [governo aprova, conselho de ministros, parlamento aprova, nova lei, decreto, assembleia da republica]
+
+  - name: Безопасность и происшествия
+    description: крупные происшествия и преступления в Лиссабоне, Порту и туристических районах, мошеннические схемы, пожары
+    keywords: [psp, gnr, policia judiciaria, burla, fraude, detidos, incendios, esfaqueado, assalto]
+
+  - name: Погода и предупреждения
+    description: предупреждения IPMA (жёлтый/оранжевый/красный уровень), жара, шторма, пожароопасность
+    keywords: [ipma, aviso amarelo, aviso laranja, aviso vermelho, tempestade, onda de calor, depressao]
+
+# Что пропускать всегда
+exclude:
+  description: >
+    результаты футбольных матчей и трансферы, светская хроника и шоу-бизнес, гороскопы,
+    рецепты, сериалы и ТВ, мелкие местные ДТП, некрологи, зарубежные новости без связи
+    с Португалией, партийные склоки без практических последствий для жителей
+  keywords: [benfica, sporting, fc porto, liga betclic, horoscopo, receita, novela, telenovela, big brother, reality show]
