@@ -118,7 +118,7 @@ def parse_rss(raw: bytes, src: dict, base_url: str = "") -> list[Item]:
         raise ValueError(f"в ленте нет записей ({feed.get('bozo_exception', 'пусто')})")
     items = []
     for e in feed.entries:
-        link = _entry_link(e, base_url or src.get("url", ""))
+        link = re.sub(r"#utm_.*$", "", _entry_link(e, base_url or src.get("url", "")))
         title = clean_text(e.get("title")) or clean_text(e.get("summary"))[:160]
         if title_strip:
             title = title_strip.sub("", title).strip()

@@ -18,13 +18,13 @@ WRITE_TOOL = {
         "type": "object",
         "properties": {
             "publish": {"type": "boolean", "description": "false — если новость не подходит каналу"},
-            "reason": {"type": "string", "description": "почему не подходит (если publish=false)"},
+            "reason": {"type": "string", "description": "почему не подходит (если publish=false), иначе пустая строка"},
             "emoji": {"type": "string", "description": "одно эмодзи по теме"},
             "text": {"type": "string",
                      "description": "текст поста БЕЗ эмодзи в начале и без подписи; жирный — **так**; "
                                     "абзацы через пустую строку"},
         },
-        "required": ["publish"],
+        "required": ["publish", "reason", "emoji", "text"],
     },
 }
 
@@ -47,7 +47,7 @@ def build_write_prompt(item: Item, text: str, full: bool, published_str: str) ->
 Текст:
 {text}
 
-Напиши пост для канала по инструкциям и верни его через инструмент write_post."""
+Напиши пост для канала по инструкциям. Ответ — JSON с полями publish, reason, emoji, text."""
 
 
 EMOJI_PREFIX = re.compile(r"^\s*(?:[\U0001F000-\U0001FAFF☀-➿⬀-⯿️‍]|"
