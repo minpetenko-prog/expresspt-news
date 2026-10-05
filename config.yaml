@@ -18,6 +18,8 @@ settings:
 # Источники. type: rss | publico_json | html
 # Для html: link_pattern — регулярное выражение для ссылок на статьи.
 # fallback — запасные способы, если основной не сработал.
+# user_agent — представиться программой для чтения RSS: некоторые сайты пускают
+# такие запросы, а обычный «браузер» с серверного адреса блокируют.
 sources:
   - id: eco
     name: ECO
@@ -84,6 +86,16 @@ sources:
     name: idealista/news
     type: rss
     url: https://www.idealista.pt/news/rss/v2/latest-news.xml
+    fallback:
+      - type: rss
+        url: https://www.idealista.pt/news/rss/v2/latest-news.xml
+        user_agent: "Feedly/1.0 (+http://www.feedly.com/fetcher.html; like FeedFetcher-Google)"
+      - type: rss
+        url: https://www.idealista.pt/news/rss/v2/latest-news.xml
+        user_agent: "FeedFetcher-Google; (+http://www.google.com/feedfetcher.html)"
+      - type: html
+        url: https://www.idealista.pt/news/
+        link_pattern: 'idealista\.pt/news/[a-z0-9/-]+/\d{4}/\d{2}/\d{2}/'
 
   - id: noticiasaominuto
     name: Notícias ao Minuto
@@ -99,6 +111,9 @@ sources:
     type: rss
     url: https://expresso.pt/rss
     fallback:
+      - type: rss
+        url: https://expresso.pt/rss
+        user_agent: "Feedly/1.0 (+http://www.feedly.com/fetcher.html; like FeedFetcher-Google)"
       - type: rss
         url: https://feeds.feedburner.com/expresso-geral
 
