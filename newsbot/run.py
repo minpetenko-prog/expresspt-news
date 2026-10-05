@@ -113,7 +113,8 @@ def run(cfg: dict, topics: dict, instructions: str, state: State, session, sende
                 post = write_post(client, s["write_model"], instructions, p.item, text, full,
                                   s.get("signature", "@ExpressPT 🇵🇹"), s.get("source_link", "emoji"),
                                   s.get("signature_html"),
-                                  [x["headline_ru"] for x in state.recent_sent(72) if x.get("post")])
+                                  [x["headline_ru"] for x in state.recent_sent(72) if x.get("post")],
+                                  s.get("max_chars"))
             except Exception as exc:  # noqa: BLE001
                 log.error("не удалось написать пост для %s: %s", p.item.url, exc)
                 postpone.append(p.item)

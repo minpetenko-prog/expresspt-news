@@ -419,3 +419,25 @@ def test_writer_sees_recent_posts_for_dedupe(tmp_path):
         article=lambda s, i: ("x" * 700, True))
     write_prompts = [p for p in seen_prompts if p.startswith("Издание:")]
     assert write_prompts and "IPMA объявила оранжевый уровень" in write_prompts[0] and "повтор" in write_prompts[0]
+
+
+def test_long_post_is_shortened():
+    from newsbot.writer import write_post, visible_len
+    calls = []
+
+    class LongThenShort:
+        def __init__(self):
+            self.messages = self
+
+        def create(self, **kw):
+            prompt = kw["messages"][0]["content"]
+            calls.append(prompt)
+            text = ("**Лид.**\n\n" + "Деталь. " * 200) if len(calls) == 1 else "**Лид.**\n\nКоротко."
+            out = {"publish": True, "reason": "", "emoji": "💶", "text": text}
+            return SimpleNamespace(content=[SimpleNamespace(type="text", text=json.dumps(out, ensure_ascii=False))])
+
+    it = Item("eco", "ECO", "https://eco.sapo.pt/a", "T", published=NOW)
+    post = write_post(LongThenShort(), "m", "I", it, "x" * 700, True, "@ExpressPT 🇵🇹", max_chars=850)
+    assert len(calls) == 2 and "слишком длинный" in calls[1]
+    assert "Коротко." in post.html and "Деталь" not in post.html
+    assert visible_len("**Лид** [слово](SOURCE) *к*") == len("Лид слово к")

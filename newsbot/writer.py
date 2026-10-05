@@ -44,9 +44,12 @@ def build_write_prompt(item: Item, text: str, full: bool, published_str: str,
     if recent:
         recent_txt = ("\nУже опубликовано в канале за последние дни:\n" +
                       "\n".join(f"- {h}" for h in recent[-40:]) +
-                      "\nЕсли эта новость — о том же событии, что и одна из уже опубликованных "
-                      "(даже из другого издания и другими словами), ответь publish=false "
-                      "с причиной «повтор», если в ней нет важных новых фактов.\n")
+                      "\nЕсли эта новость — о той же ситуации, что одна из уже опубликованных, ответь "
+                      "publish=false с причиной «повтор». Это касается и других изданий, и «обновлений»: "
+                      "новые округа в том же предупреждении IPMA, новые цифры той же забастовки, "
+                      "очередные подробности того же события — всё это повтор. Исключение — только "
+                      "резкое изменение главного (например, предупреждение стало красным, забастовку "
+                      "отменили, решение окончательно приняли).\n")
     return f"""Издание: {item.source_name}
 Ссылка: {item.url}
 Дата публикации: {published_str}
@@ -104,9 +107,25 @@ def compose(emoji: str, text: str, url: str, signature: str, source_link: str = 
     return Post(html=post_html, headline=first_par[:200])
 
 
+def visible_len(text: str) -> int:
+    """Длина текста так, как его увидит читатель (без разметки)."""
+    return len(SOURCE_MARK.sub(r"\1", text).replace("**", "").replace("*", "").strip())
+
+
+SHORTEN_PROMPT = """Этот пост слишком длинный: {length} знаков, а нужно не больше {limit}.
+Сократи его до {target}–{limit} знаков. Сохрани эмодзи, жирный лид, оформление и ссылку
+вида [слово](SOURCE), если она есть. Выбрось второстепенное: перечни названий, мелкие цифры,
+цитаты, историю вопроса. Оставь главное и то, что важно читателю.
+
+Пост:
+{text}
+
+Ответ — JSON с полями publish (true), reason (""), emoji, text."""
+
+
 def write_post(client, model: str, instructions: str, item: Item, text: str, full: bool,
                signature: str, source_link: str = "emoji", signature_html: str | None = None,
-               recent: list[str] | None = None) -> Post | None:
+               recent: list[str] | None = None, max_chars: int | None = None) -> Post | None:
     published = item.published.strftime("%d.%m.%Y %H:%M UTC") if item.published else "неизвестна"
     result = call_tool(client, model, instructions,
                        build_write_prompt(item, text, full, published, recent), WRITE_TOOL,
@@ -114,5 +133,14 @@ def write_post(client, model: str, instructions: str, item: Item, text: str, ful
     if not result.get("publish") or not (result.get("text") or "").strip():
         log.info("пропущено «%s»: %s", item.title, result.get("reason", "—"))
         return None
+    length = visible_len(result["text"])
+    if max_chars and length > max_chars:
+        log.info("пост %d знаков при лимите %d — сокращаю", length, max_chars)
+        shorter = call_tool(client, model, instructions,
+                            SHORTEN_PROMPT.format(length=length, limit=max_chars,
+                                                  target=int(max_chars * 0.6), text=result["text"]),
+                            WRITE_TOOL, max_tokens=2000)
+        if (shorter.get("text") or "").strip() and visible_len(shorter["text"]) < length:
+            result = {**result, **{k: shorter[k] for k in ("emoji", "text") if shorter.get(k)}}
     return compose(result.get("emoji", ""), result["text"], item.url, signature,
                    source_link, signature_html)
