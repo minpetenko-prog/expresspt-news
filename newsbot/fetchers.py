@@ -135,6 +135,8 @@ def parse_rss(raw: bytes, src: dict, base_url: str = "") -> list[Item]:
         items.append(Item(
             source_id=src["id"], source_name=src["name"], url=link, title=title,
             summary=clean_text(e.get("summary"))[:1500], content=content, published=published,
+            # через Google News полный текст статьи не получить
+            paywalled="news.google.com" in link,
         ))
     if not items:
         first = feed.entries[0]

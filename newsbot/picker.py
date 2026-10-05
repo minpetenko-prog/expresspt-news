@@ -84,7 +84,7 @@ def _topics_text(cfg: dict) -> str:
 def build_select_prompt(batch: list[Item], topics_cfg: dict, recent: list[dict]) -> str:
     cands = []
     for i, it in enumerate(batch):
-        flag = " [платно]" if it.paywalled else ""
+        flag = " [только анонс]" if it.paywalled else ""
         summary = (it.summary or "")[:250]
         cands.append(f"[{i}] {it.source_name}{flag} | {it.title}" + (f" — {summary}" if summary else ""))
     recent_txt = "\n".join(f"- {s['headline_ru']} ({s['title_pt']})" for s in recent[-60:]) or "—"
@@ -103,7 +103,7 @@ def build_select_prompt(batch: list[Item], topics_cfg: dict, recent: list[dict])
 
 Правила:
 - Бери только новости, которые явно подходят под темы и интересны аудитории. Будь строгим: обычно подходит 5–15% списка.
-- Если несколько новостей про одно и то же событие — выбери одну, с самым содержательным заголовком и анонсом; помеченные [платно] — только если других нет.
+- Если несколько новостей про одно и то же событие — выбери одну, с самым содержательным заголовком и анонсом; помеченные [только анонс] не бери, если есть то же событие в другом издании.
 - Пропускай повторы уже опубликованного, мнения и колонки, прямые трансляции, анонсы ТВ-передач.
 Верни выбранное через инструмент select_news."""
 

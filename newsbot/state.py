@@ -52,8 +52,9 @@ class State:
             if it.title_key:
                 self.seen["t:" + it.title_key] = ts
 
-    def add_sent(self, item: Item, headline_ru: str) -> None:
+    def add_sent(self, item: Item, headline_ru: str, post: bool = False) -> None:
         self.sent.append({
+            "post": post,
             "ts": _now().isoformat(timespec="seconds"),
             "source": item.source_name, "url": item.url,
             "title_pt": item.title, "headline_ru": headline_ru,

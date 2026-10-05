@@ -89,15 +89,27 @@ def run(cfg: dict, topics: dict, instructions: str, state: State, session, sende
     if not fresh:
         return stats
 
+    if in_quiet_hours(now, s.get("quiet_hours")):
+        # ночью ничего не шлём и не помечаем прочитанным — утром отберём лучшее за ночь
+        log.info("тихие часы — отправка отложена")
+        return stats
+
     postpone: list[Item] = []
     if client is not None:
-        picks = llm_select(client, s["select_model"], fresh, topics, state.recent_sent())
-        max_posts = s.get("max_posts_per_run", 5)
-        for p in picks[max_posts:]:
-            postpone.append(p.item)  # не влезли — рассмотрим в следующий запуск
-        for p in picks[:max_posts]:
+        posts_today = sum(1 for x in state.recent_sent(24) if x.get("post"))
+        budget = min(s.get("max_posts_per_run", 5),
+                     max(0, s.get("max_posts_per_day", 15) - posts_today))
+        picks = llm_select(client, s["select_model"], fresh, topics, state.recent_sent()) if budget else []
+        sent = 0
+        for idx, p in enumerate(picks):
+            if sent >= budget:
+                postpone.extend(x.item for x in picks[idx:])  # рассмотрим в следующий запуск
+                break
+            text, full = article(session, p.item)
+            if not full and s.get("require_full_text", True):
+                log.info("пропущено, нет полного текста: %s", p.item.url)
+                continue
             try:
-                text, full = article(session, p.item)
                 post = write_post(client, s["write_model"], instructions, p.item, text, full,
                                   s.get("signature", "@ExpressPT 🇵🇹"))
             except Exception as exc:  # noqa: BLE001
@@ -106,10 +118,10 @@ def run(cfg: dict, topics: dict, instructions: str, state: State, session, sende
                 continue
             if post is None:
                 continue
-            label = f"{p.item.source_name} ↗" + ("" if full else " · только анонс")
-            sender.send(post.html, buttons=[(label, p.item.url)])
-            state.add_sent(p.item, post.headline)
-            stats["sent"] += 1
+            sender.send(post.html)
+            state.add_sent(p.item, post.headline, post=True)
+            sent += 1
+        stats["sent"] = sent
     else:
         picks = keyword_select(fresh, topics)
         for p in picks[DIGEST_MAX:]:
@@ -123,6 +135,16 @@ def run(cfg: dict, topics: dict, instructions: str, state: State, session, sende
 
     state.mark_seen([it for it in fresh if it not in postpone])
     return stats
+
+
+def in_quiet_hours(now: datetime, spec: str | None, tz: str = "Europe/Lisbon") -> bool:
+    """spec вида "23-7": с 23:00 до 06:59 по времени Лиссабона."""
+    if not spec:
+        return False
+    from zoneinfo import ZoneInfo
+    start, end = (int(x) for x in str(spec).split("-"))
+    h = now.astimezone(ZoneInfo(tz)).hour
+    return (start <= h or h < end) if start > end else (start <= h < end)
 
 
 def send_digest(sender, picks) -> None:
