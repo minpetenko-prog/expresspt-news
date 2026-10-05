@@ -85,8 +85,10 @@ def rewrite_one(url, cfg, instructions, session, client, sender) -> int:
         print("Не удалось получить текст статьи (пейвол или блокировка).", file=sys.stderr)
         return 1
     item.title = text.split("\n", 1)[0][:200]
-    post = write_post(client, cfg["settings"]["write_model"], instructions, item, text, full,
-                      cfg["settings"].get("signature", "@ExpressPT 🇵🇹"))
+    st = cfg["settings"]
+    post = write_post(client, st["write_model"], instructions, item, text, full,
+                      st.get("signature", "@ExpressPT 🇵🇹"), st.get("source_link", "emoji"),
+                      st.get("signature_html"))
     if post is None:
         print("Claude решил, что новость не подходит каналу.")
         return 0
