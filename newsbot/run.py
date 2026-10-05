@@ -54,6 +54,20 @@ def run(cfg: dict, topics: dict, instructions: str, state: State, session, sende
     for a in alerts:
         sender.send(a, preview=False)
 
+    # Источник, который заработал впервые (например, после починки), не должен
+    # вывалить в чат весь свой архив: его текущие новости молча помечаем прочитанными.
+    got = {it.source_id for it in items}
+    if state.known_sources is None:
+        # старое состояние: известными считаем источники, чьи новости уже встречались
+        state.known_sources = sorted({it.source_id for it in items if not state.is_new(it)})
+        if not state.bootstrapped:
+            state.known_sources = sorted(got)
+    onboarded = got - set(state.known_sources)
+    if onboarded:
+        state.mark_seen([it for it in items if it.source_id in onboarded])
+        state.known_sources = sorted(set(state.known_sources) | onboarded)
+        log.info("новые источники подключены: %s", ", ".join(sorted(onboarded)))
+
     new = [it for it in items if state.is_new(it)]
     stats = {"sources_ok": ok, "sources": len(cfg["sources"]), "new": len(new), "sent": 0}
 

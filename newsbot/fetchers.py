@@ -102,8 +102,9 @@ def make_session() -> requests.Session:
     return s
 
 
-def http_get(session: requests.Session, url: str) -> requests.Response:
-    resp = session.get(url, timeout=TIMEOUT)
+def http_get(session: requests.Session, url: str, user_agent: str | None = None) -> requests.Response:
+    headers = {"User-Agent": user_agent} if user_agent else None
+    resp = session.get(url, timeout=TIMEOUT, headers=headers)
     resp.raise_for_status()
     return resp
 
@@ -116,7 +117,7 @@ def parse_rss(raw: bytes, src: dict) -> list[Item]:
         raise ValueError(f"в ленте нет записей ({feed.get('bozo_exception', 'пусто')})")
     items = []
     for e in feed.entries:
-        link = e.get("link") or ""
+        link = _entry_link(e)
         title = clean_text(e.get("title"))
         if not link or not title:
             continue
@@ -132,7 +133,19 @@ def parse_rss(raw: bytes, src: dict) -> list[Item]:
             source_id=src["id"], source_name=src["name"], url=link, title=title,
             summary=clean_text(e.get("summary"))[:1500], content=content, published=published,
         ))
+    if not items:
+        first = feed.entries[0]
+        raise ValueError(f"в ленте {len(feed.entries)} записей, но ни одной со ссылкой и заголовком "
+                         f"(поля: {sorted(first.keys())[:15]})")
     return items
+
+
+def _entry_link(e) -> str:
+    """Ссылка на статью: link, затем links[], затем guid, если он похож на URL."""
+    for cand in [e.get("link")] + [l.get("href") for l in e.get("links", [])] + [e.get("id")]:
+        if cand and str(cand).strip().startswith("http"):
+            return str(cand).strip()
+    return ""
 
 
 def _find_list(data):
@@ -202,7 +215,7 @@ def parse_html_list(html: str, base_url: str, src: dict, limit: int = 40) -> lis
 
 
 def fetch_one(session: requests.Session, spec: dict, src: dict) -> list[Item]:
-    resp = http_get(session, spec["url"])
+    resp = http_get(session, spec["url"], spec.get("user_agent"))
     kind = spec["type"]
     if kind == "rss":
         return parse_rss(resp.content, src)
@@ -215,12 +228,14 @@ def fetch_one(session: requests.Session, spec: dict, src: dict) -> list[Item]:
 
 def fetch_source(session: requests.Session, src: dict) -> list[Item]:
     """Пробует основной способ, затем запасные. Бросает исключение, если не сработал ни один."""
-    specs = [{k: src[k] for k in ("type", "url", "link_pattern") if k in src}]
+    specs = [{k: src[k] for k in ("type", "url", "link_pattern", "user_agent") if k in src}]
     specs += src.get("fallback", [])
     errors = []
     for spec in specs:
         try:
             items = fetch_one(session, spec, src)
+            if not items:
+                raise ValueError("0 новостей")
             log.info("%s: %d новостей (%s)", src["id"], len(items), spec["url"])
             return items
         except Exception as exc:  # noqa: BLE001 — любой сбой источника не должен ронять запуск

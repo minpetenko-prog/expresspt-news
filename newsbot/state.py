@@ -23,6 +23,8 @@ class State:
         self.seen: dict[str, str] = data.get("seen", {})          # id или title_key -> ISO-время
         self.sent: list[dict] = data.get("sent", [])               # что ушло в чат
         self.failures: dict[str, int] = data.get("failures", {})   # источник -> падений подряд
+        # источники, которые уже отдавали новости; None — старое состояние без этого поля
+        self.known_sources: list[str] | None = data.get("known_sources")
 
     @classmethod
     def load(cls, path: Path) -> "State":
@@ -34,7 +36,8 @@ class State:
         self.prune()
         self.path.parent.mkdir(parents=True, exist_ok=True)
         data = {"bootstrapped": self.bootstrapped, "seen": self.seen,
-                "sent": self.sent, "failures": self.failures}
+                "sent": self.sent, "failures": self.failures,
+                "known_sources": self.known_sources}
         self.path.write_text(json.dumps(data, ensure_ascii=False, indent=1, sort_keys=True),
                              encoding="utf-8")
 
