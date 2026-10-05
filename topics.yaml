@@ -1,58 +1,72 @@
-# Темы для отбора новостей. ЧЕРНОВИК — замени на свой список.
+# Темы для отбора новостей в @ExpressPT.
 #
-# description — для нейросети (режим с API-ключом): по ней Claude решает, подходит ли новость.
-# keywords — для режима без ключа: новость берётся, если в заголовке или анонсе
-#            есть хотя бы одно слово (регистр и диакритика не важны, можно писать без акцентов).
+# description — главное: по ней Claude решает, брать новость или нет.
+# keywords — запасной вариант на случай, если ключ API не задан (поиск слов в заголовке).
 
 audience: >
-  Русскоязычные жители Португалии и те, кто планирует переезд. Им важно то, что влияет
-  на жизнь, деньги, документы и быт в Португалии. Канал: «Главное об экономике и обществе».
+  Редактор канала и его читатели — русскоязычные иммигранты, которые живут в Португалии.
+  Новость берём, только если она практически полезна или по-настоящему важна для жизни
+  в стране: деньги, документы, безопасность, быт. В первую очередь — то, что пригодится
+  самому редактору. Любопытное «для общего развития» не берём.
 
 topics:
-  - name: Экономика и бизнес
-    description: макроэкономика, ВВП, инфляция, инвестиции, крупные компании и сделки, приватизации, TAP, банки
-    keywords: [economia, pib, inflacao, investimento, privatizacao, tap, banco de portugal, empresas, exportacoes, revolut]
+  - name: Финансы и экономика
+    description: >
+      только то, что влияет на кошелёк жителя Португалии: ставки по вкладам и ипотеке,
+      Euribor, цены на продукты, бензин, электричество, газ, аренду и жильё; налоги (IRS, IVA),
+      зарплаты, минимальная зарплата, пенсии, пособия; место Португалии в рейтингах ЕС
+      (зарплаты, цены, доходы, рост экономики); решения, которые меняют цены и тарифы.
+      НЕ брать: биржевые котировки, отчёты и сделки отдельных компаний, назначения
+      руководителей, макроэкономику без понятных последствий для людей
+    keywords: [juros, euribor, credito a habitacao, depositos, precos, inflacao, cabaz, combustiveis,
+               gasolina, gasoleo, eletricidade, rendas, arrendamento, habitacao, irs, iva, impostos,
+               salario minimo, salarios, pensoes, subsidio, seguranca social, eurostat]
 
-  - name: Налоги и соцвыплаты
-    description: IRS, IVA, бюджет, льготы, IRS Jovem, NHR, Segurança Social, пенсии, пособия, минимальная зарплата
-    keywords: [irs, iva, impostos, imposto, orcamento do estado, segurança social, seguranca social, pensoes, reforma, salario minimo, subsidio, ifici, nhr]
+  - name: Иммиграция и политика
+    description: >
+      всё, что касается иностранцев и иммигрантов: AIMA, ВНЖ и их продление, визы, гражданство
+      и закон о гражданстве, воссоединение семей, золотые визы, обмен водительских прав,
+      налоговые режимы для новых резидентов (IFICI, бывший NHR), документы в Finanças, SNS,
+      Segurança Social. Из политики — только решения правительства и парламента, которые прямо
+      меняют жизнь жителей: новые законы и правила, бюджет, итоги выборов.
+      НЕ брать: партийные споры, заявления политиков без последствий, международную политику
+      без связи с Португалией
+    keywords: [aima, imigrantes, imigracao, estrangeiros, nacionalidade, autorizacao de residencia,
+               vistos, visto gold, reagrupamento familiar, cplp, ifici, nhr, governo aprova,
+               conselho de ministros, parlamento aprova, orcamento do estado, eleicoes, nova lei]
 
-  - name: Жильё и аренда
-    description: цены на жильё и аренду, ипотека, ставки, законы об аренде, программы жилья, рынок недвижимости
-    keywords: [habitacao, rendas, arrendamento, renda, imobiliario, casas, credito a habitacao, euribor, juros, senhorios, idealista]
+  - name: Общество
+    description: >
+      события, которые заметят жители: забастовки и сбои транспорта (CP, Metro, Carris, TAP,
+      аэропорты), работа SNS, больниц и скорой помощи, школы, новые правила для водителей и
+      жителей, заметные изменения в Лиссабоне, Порту и Алгарве, крупные события в стране.
+      НЕ брать: истории про животных, курьёзы, светскую хронику, культуру и шоу-бизнес, спорт,
+      местные новости маленьких посёлков
+    keywords: [greve, comboios, metro, carris, aeroporto, tap, sns, hospitais, urgencias, inem,
+               medicos de familia, escolas, portagens, passe, codigo da estrada]
 
-  - name: Иммиграция и документы
-    description: AIMA, ВНЖ, визы, гражданство, закон о гражданстве, золотые визы, легализация, иностранцы
-    keywords: [aima, imigrantes, imigracao, nacionalidade, autorizacao de residencia, vistos, visto gold, estrangeiros, cplp, sef]
+  - name: Происшествия и криминал
+    description: >
+      заметные происшествия и преступления в Португалии: мошеннические схемы (особенно против
+      жителей и иностранцев), задержания, ограбления, нападения в Лиссабоне, Порту, Алгарве и
+      туристических местах, крупные ДТП и пожары.
+      НЕ брать: мелкие бытовые случаи в провинции, судебную хронику без новых фактов
+    keywords: [burla, fraude, detido, detidos, assalto, roubo, esfaqueado, psp, gnr,
+               policia judiciaria, homicidio, incendio, incendios]
 
-  - name: Транспорт и инфраструктура
-    description: аэропорты, новый аэропорт, CP, метро, Carris, забастовки транспорта, дороги, тарифы, проездные
-    keywords: [aeroporto, ana aeroportos, comboios, cp, metro, carris, portagens, passe, greve, ferrovia, alta velocidade]
-
-  - name: Здравоохранение и образование
-    description: SNS, больницы, INEM, очереди, врачи семейной медицины, школы, университеты, реформы
-    keywords: [sns, hospitais, hospital, inem, medicos de familia, urgencias, escolas, ensino, universidades, saude 24]
-
-  - name: Цены и потребители
-    description: цены на продукты, топливо, электричество, газ, связь, изменения тарифов, права потребителей
-    keywords: [precos, combustiveis, gasolina, gasoleo, eletricidade, tarifas, deco, cabaz, supermercados]
-
-  - name: Законы и решения властей
-    description: решения правительства и парламента, новые законы и правила, которые затрагивают жителей
-    keywords: [governo aprova, conselho de ministros, parlamento aprova, nova lei, decreto, assembleia da republica]
-
-  - name: Безопасность и происшествия
-    description: крупные происшествия и преступления в Лиссабоне, Порту и туристических районах, мошеннические схемы, пожары
-    keywords: [psp, gnr, policia judiciaria, burla, fraude, detidos, incendios, esfaqueado, assalto]
-
-  - name: Погода и предупреждения
-    description: предупреждения IPMA (жёлтый/оранжевый/красный уровень), жара, шторма, пожароопасность
-    keywords: [ipma, aviso amarelo, aviso laranja, aviso vermelho, tempestade, onda de calor, depressao]
+  - name: Погодные предупреждения
+    description: >
+      предупреждения IPMA жёлтого, оранжевого и красного уровня, жара, шторма, ливни, сильный
+      ветер, пожароопасность, землетрясения, а также последствия непогоды (закрытые дороги,
+      отменённые поезда и рейсы)
+    keywords: [ipma, aviso amarelo, aviso laranja, aviso vermelho, onda de calor, tempestade,
+               depressao, chuva forte, risco de incendio, sismo]
 
 # Что пропускать всегда
 exclude:
   description: >
-    результаты футбольных матчей и трансферы, светская хроника и шоу-бизнес, гороскопы,
-    рецепты, сериалы и ТВ, мелкие местные ДТП, некрологи, зарубежные новости без связи
-    с Португалией, партийные склоки без практических последствий для жителей
-  keywords: [benfica, sporting, fc porto, liga betclic, horoscopo, receita, novela, telenovela, big brother, reality show]
+    животные и природа без последствий для людей (вроде дельфинов у берега), курьёзы,
+    светская хроника, шоу-бизнес, сериалы, спорт, гороскопы, рецепты, колонки мнений,
+    международные новости без связи с Португалией
+  keywords: [benfica, sporting, fc porto, futebol, horoscopo, receita, novela, telenovela,
+             big brother, golfinho, golfinhos]
