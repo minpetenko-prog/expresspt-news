@@ -441,3 +441,10 @@ def test_long_post_is_shortened():
     assert len(calls) == 2 and "слишком длинный" in calls[1]
     assert "Коротко." in post.html and "Деталь" not in post.html
     assert visible_len("**Лид** [слово](SOURCE) *к*") == len("Лид слово к")
+
+
+def test_banksta_style_inline_signature():
+    post = compose("💶", "Ставка по вкладам выросла до 1,55%. В еврозоне — 2,09%.",
+                   "https://eco.sapo.pt/a", "@ExpressPT 🇵🇹", signature_inline=True)
+    assert post.html == ('<a href="https://eco.sapo.pt/a">💶</a> Ставка по вкладам выросла до 1,55%. '
+                         'В еврозоне — 2,09%. @ExpressPT 🇵🇹')

@@ -88,7 +88,7 @@ def md_to_tg_html(text: str, source_url: str | None = None) -> tuple[str, bool]:
 
 
 def compose(emoji: str, text: str, url: str, signature: str, source_link: str = "emoji",
-            signature_html: str | None = None) -> Post:
+            signature_html: str | None = None, signature_inline: bool = False) -> Post:
     """source_link: "emoji" — ссылка на эмодзи в начале (как в @ExpressPT);
     "inline" — ссылка на слово, которое модель пометила [слово](SOURCE) (как в @trueportugal).
     Если модель забыла пометить слово, ссылка ставится на эмодзи, чтобы источник не потерялся."""
@@ -102,7 +102,8 @@ def compose(emoji: str, text: str, url: str, signature: str, source_link: str = 
         body_html, _ = md_to_tg_html(body)
         head = linked_emoji
     sig = signature_html if signature_html else html.escape(signature)
-    post_html = f"{head} {body_html}\n\n{sig}"
+    # signature_inline: подпись в конце последней строки, как в @banksta
+    post_html = f"{head} {body_html} {sig}" if signature_inline else f"{head} {body_html}\n\n{sig}"
     first_par = SOURCE_MARK.sub(r"\1", body.split("\n\n")[0]).replace("**", "").replace("*", "").strip()
     return Post(html=post_html, headline=first_par[:200])
 
@@ -113,7 +114,7 @@ def visible_len(text: str) -> int:
 
 
 SHORTEN_PROMPT = """Этот пост слишком длинный: {length} знаков, а нужно не больше {limit}.
-Сократи его до {target}–{limit} знаков. Сохрани эмодзи, жирный лид, оформление и ссылку
+Сократи его до {target}–{limit} знаков. Сохрани эмодзи, оформление и ссылку
 вида [слово](SOURCE), если она есть. Выбрось второстепенное: перечни названий, мелкие цифры,
 цитаты, историю вопроса. Оставь главное и то, что важно читателю.
 
@@ -125,7 +126,8 @@ SHORTEN_PROMPT = """Этот пост слишком длинный: {length} з
 
 def write_post(client, model: str, instructions: str, item: Item, text: str, full: bool,
                signature: str, source_link: str = "emoji", signature_html: str | None = None,
-               recent: list[str] | None = None, max_chars: int | None = None) -> Post | None:
+               recent: list[str] | None = None, max_chars: int | None = None,
+               signature_inline: bool = False) -> Post | None:
     published = item.published.strftime("%d.%m.%Y %H:%M UTC") if item.published else "неизвестна"
     result = call_tool(client, model, instructions,
                        build_write_prompt(item, text, full, published, recent), WRITE_TOOL,
@@ -143,4 +145,4 @@ def write_post(client, model: str, instructions: str, item: Item, text: str, ful
         if (shorter.get("text") or "").strip() and visible_len(shorter["text"]) < length:
             result = {**result, **{k: shorter[k] for k in ("emoji", "text") if shorter.get(k)}}
     return compose(result.get("emoji", ""), result["text"], item.url, signature,
-                   source_link, signature_html)
+                   source_link, signature_html, signature_inline)

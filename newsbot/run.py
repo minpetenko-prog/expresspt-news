@@ -114,7 +114,7 @@ def run(cfg: dict, topics: dict, instructions: str, state: State, session, sende
                                   s.get("signature", "@ExpressPT 🇵🇹"), s.get("source_link", "emoji"),
                                   s.get("signature_html"),
                                   [x["headline_ru"] for x in state.recent_sent(72) if x.get("post")],
-                                  s.get("max_chars"))
+                                  s.get("max_chars"), s.get("signature_inline", False))
             except Exception as exc:  # noqa: BLE001
                 log.error("не удалось написать пост для %s: %s", p.item.url, exc)
                 postpone.append(p.item)
