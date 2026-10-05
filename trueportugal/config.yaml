@@ -1,0 +1,149 @@
+# Настройки парсера новостей для @trueportugal («Португалия без розовых очков»)
+
+settings:
+  # Новости старше этого возраста не берём (по дате из ленты)
+  max_age_hours: 12
+  # Сколько готовых постов максимум присылать за один запуск (раз в 30 минут) и за сутки
+  max_posts_per_run: 3
+  max_posts_per_day: 8
+  # Ночью посты не присылаются, утром приходят лучшие за ночь (время Лиссабона)
+  quiet_hours: "23-7"
+  # Не присылать посты, если удалось прочитать только анонс (платные статьи)
+  require_full_text: true
+  # Ссылка на источник — на слове внутри текста, как в канале
+  source_link: inline
+  # Подпись в конце каждого поста (название канала — ссылка)
+  signature: "Оставайтесь с Португалия без розовых очков 🇵🇹"
+  signature_html: 'Оставайтесь с <a href="https://t.me/trueportugal">Португалия без розовых очков</a>🇵🇹'
+  # Показывать превью ссылки на источник под постом
+  link_preview: true
+  # Модели Claude
+  select_model: claude-haiku-4-5-20251001
+  write_model: claude-sonnet-5-5
+  # Сколько запусков подряд источник может падать, прежде чем бот предупредит в чат
+  alert_after_failures: 6
+
+# Источники — как у @ExpressPT, но без Correio da Manhã и плюс Lisboa Secreta, Meteored, Razão Automóvel
+sources:
+  - id: eco
+    name: ECO
+    type: rss
+    url: https://eco.sapo.pt/feed/
+
+  - id: observador
+    name: Observador
+    type: rss
+    url: https://observador.pt/feed/
+
+  - id: dn
+    name: Diário de Notícias
+    type: rss
+    url: https://www.dn.pt/feed
+
+  - id: rtp
+    name: RTP Notícias
+    type: rss
+    url: https://www.rtp.pt/noticias/rss
+
+  - id: lusa
+    name: Lusa
+    type: html
+    url: https://www.lusa.pt/
+    link_pattern: 'lusa\.pt/article/\d+/'
+
+  - id: publico
+    name: Público
+    type: publico_json
+    url: https://www.publico.pt/api/list/ultimas
+    fallback:
+      - type: rss
+        url: https://feeds.feedburner.com/PublicoRSS
+
+  - id: publico_brasil
+    name: Público Brasil
+    type: publico_json
+    url: https://www.publico.pt/api/list/publico-brasil
+
+  - id: sic
+    name: SIC Notícias
+    type: rss
+    url: https://feeds.feedburner.com/sicnoticias-ultimas
+    fallback:
+      - type: rss
+        url: https://sicnoticias.pt/rss
+
+  - id: negocios
+    name: Jornal de Negócios
+    type: rss
+    url: https://www.jornaldenegocios.pt/rss
+
+  - id: sapo
+    name: SAPO
+    type: rss
+    url: https://www.sapo.pt/feed
+    fallback:
+      - type: html
+        url: https://www.sapo.pt/noticias/atualidade
+        link_pattern: 'sapo\.pt/.+/artigos/'
+
+  - id: idealista
+    name: idealista/news
+    type: rss
+    url: https://www.idealista.pt/news/rss/v2/latest-news.xml
+    fallback:
+      # сайт блокирует серверы GitHub, поэтому берём его новости через Google News
+      # (ссылки будут вести через news.google.com и открываться в браузере как обычно)
+      - type: rss
+        url: https://news.google.com/rss/search?q=site:idealista.pt/news+when:2d&hl=pt-PT&gl=PT&ceid=PT:pt-150
+        title_strip: '\s+-\s+idealista.*$'
+
+  - id: noticiasaominuto
+    name: Notícias ao Minuto
+    type: rss
+    url: https://www.noticiasaominuto.com/rss/ultima-hora
+    fallback:
+      - type: html
+        url: https://www.noticiasaominuto.com/
+        link_pattern: 'noticiasaominuto\.com/[a-z-]+/\d+/'
+
+  - id: expresso
+    name: Expresso
+    type: rss
+    url: https://expresso.pt/rss
+    fallback:
+      - type: rss
+        url: https://expresso.pt/rss
+        user_agent: "Feedly/1.0 (+http://www.feedly.com/fetcher.html; like FeedFetcher-Google)"
+      - type: rss
+        url: https://feeds.feedburner.com/expresso-geral
+
+  - id: tempo
+    name: tempo.pt
+    type: html
+    url: https://www.tempo.pt/
+    link_pattern: 'tempo\.pt/noticias/[a-z0-9-]+/[a-z0-9-]+\.html'
+
+  - id: nit
+    name: NiT
+    type: rss
+    url: https://www.nit.pt/feed
+
+  - id: lisboasecreta
+    name: Lisboa Secreta
+    type: rss
+    url: https://lisboasecreta.co/feed/
+
+  - id: meteored
+    name: Meteored
+    type: html
+    url: https://www.meteored.com/pt/noticias
+    link_pattern: 'tempo\.(?:pt|com)/noticias/[a-z0-9-]+/[a-z0-9-]+\.html'
+
+  - id: razaoautomovel
+    name: Razão Automóvel
+    type: rss
+    url: https://www.razaoautomovel.com/feed/
+    fallback:
+      - type: html
+        url: https://www.razaoautomovel.com/
+        link_pattern: 'razaoautomovel\.com/(?:noticias|ensaios|guias|lancamentos)/[a-z0-9-]+'
