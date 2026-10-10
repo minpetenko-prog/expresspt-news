@@ -11813,54 +11813,6 @@
  },
  "sent": [
   {
-   "headline_ru": "Новый режим доступной аренды (RSAA), действующий с 1 сентября, не работает: для него до сих пор нет portaria с предельными ставками аренды.",
-   "post": true,
-   "source": "Notícias ao Minuto",
-   "title_pt": "Associação denuncia paralisação do arrendamento acessível: Eis o motivo",
-   "ts": "2026-10-06T12:05:19+00:00",
-   "url": "https://www.noticiasaominuto.com/pais/3062164/associacao-denuncia-paralisacao-do-arrendamento-acessivel-por-ausencia-de-portaria"
-  },
-  {
-   "headline_ru": "Премьер-министр Луиш Монтенегру отделил переговоры о реформе закона об аренде от госбюджета. Он заявил, что PS «закрылась» в этом вопросе и проголосовала против, поэтому не вправе требовать от правите",
-   "post": true,
-   "source": "Diário de Notícias",
-   "title_pt": "Primeiro-ministro desliga do Orçamento do Estado a negociação da lei das rendas",
-   "ts": "2026-10-06T12:05:40+00:00",
-   "url": "https://www.dn.pt/pol%C3%ADtica/primeiro-ministro-desliga-do-oramento-do-estado-a-negociao-da-lei-das-rendas"
-  },
-  {
-   "headline_ru": "Euribor на 6 месяцев, самая распространённая ставка по ипотеке с плавающей ставкой в Португалии, снизилась 6 октября до 2,954%. Это на 0,032 пункта меньше, чем в понедельник.",
-   "post": true,
-   "source": "ECO",
-   "title_pt": "Euribor sobe a três meses e desce a seis e a 12 meses",
-   "ts": "2026-10-06T12:05:49+00:00",
-   "url": "https://eco.sapo.pt/2026/10/06/euribor-sobe-a-tres-meses-e-desce-a-seis-e-a-12-meses-16/"
-  },
-  {
-   "headline_ru": "Еврокомиссия предупредила, что энергетический кризис в ЕС может обостриться с приближением зимы. Президент Еврокомиссии Урсула фон дер Ляйен заявила в Европарламенте, что с конца февраля газ подорожал",
-   "post": true,
-   "source": "Notícias ao Minuto",
-   "title_pt": "Energia? Crise pode agravar-se \"à medida que nos aproximamos do inverno\"",
-   "ts": "2026-10-06T12:05:59+00:00",
-   "url": "https://www.noticiasaominuto.com/mundo/3062083/irao-crise-de-precos-na-energia-pode-agravar-se-com-chegada-do-inverno-bruxelas"
-  },
-  {
-   "headline_ru": "Прокуратура предъявила обвинения пятерым совершеннолетним по делу о драке в торговом центре NorteShopping в Matosinhos, в которой в июне 2024 года погиб 16-летний Gonçalo Lima. Их обвиняют в отягчённо",
-   "post": true,
-   "source": "SAPO",
-   "title_pt": "MP acusa cinco arguidos pela rixa que matou jovem do Coronado de 16 anos no NorteShopping",
-   "ts": "2026-10-06T12:06:16+00:00",
-   "url": "https://sapo.pt/artigo/mp-acusa-cinco-arguidos-pela-rixa-que-matou-jovem-do-coronado-de-16-anos-no-norteshopping-6ac4dd269406c429be610728"
-  },
-  {
-   "headline_ru": "Meo завершила модернизацию связи в метро Lisboa: 5G теперь работает на всех линиях.",
-   "post": true,
-   "source": "Jornal de Negócios",
-   "title_pt": "Meo termina modernização no Metro de Lisboa. Operadora já prepara expansão na linha circular",
-   "ts": "2026-10-06T12:06:21+00:00",
-   "url": "https://www.jornaldenegocios.pt/empresas/telecomunicacoes/detalhe/meo-termina-modernizacao-no-metro-de-lisboa-operadora-ja-prepara-expansao-na-linha-circular"
-  },
-  {
    "headline_ru": "CGA исправит 2 937 пенсий, назначенных с мая по август: из-за ошибки в программе их выплачивали больше положенного. В среднем пенсия уменьшится на 93,31 евро в месяц.",
    "post": true,
    "source": "ECO",
