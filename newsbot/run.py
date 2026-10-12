@@ -7,6 +7,7 @@ from datetime import datetime, timedelta, timezone
 
 from .article import get_article_text
 from .fetchers import Item, fetch_source
+from .llm import is_fatal_api_error
 from .picker import keyword_select, llm_select
 from .state import State
 from .writer import write_post
@@ -133,6 +134,8 @@ def run(cfg: dict, topics: dict, instructions: str, state: State, session, sende
                                   [x["headline_ru"] for x in state.recent_sent(72) if x.get("post")],
                                   s.get("max_chars"), s.get("signature_inline", False))
             except Exception as exc:  # noqa: BLE001
+                if is_fatal_api_error(exc):
+                    raise
                 log.error("не удалось написать пост для %s: %s", p.item.url, exc)
                 postpone.append(p.item)
                 continue

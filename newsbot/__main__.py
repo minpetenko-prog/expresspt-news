@@ -82,8 +82,20 @@ def main(argv=None) -> int:
         return rewrite_one(args.url, cfg, instructions, session, client, sender)
 
     state = State.load(Path(args.state))
-    stats = run(cfg, topics, instructions, state, session, sender, client=client,
-                bootstrap=not args.dry_run)
+    try:
+        stats = run(cfg, topics, instructions, state, session, sender, client=client,
+                    bootstrap=not args.dry_run)
+    except Exception as exc:
+        from .llm import is_fatal_api_error
+        if is_fatal_api_error(exc):
+            channel = cfg["settings"].get("channel", "@ExpressPT")
+            sender.send(
+                f"⚠️ Выпуск для {channel} не вышел: Claude API отказал в доступе.\n\n"
+                f"Скорее всего, закончился баланс. Пополните его на platform.claude.com → Billing — "
+                f"следующий выпуск выйдет сам. Пропущенный выпуск можно запустить вручную в течение "
+                f"3 часов: GitHub → Actions → ExpressPT news → Run workflow.\n\n"
+                f"<code>{str(exc)[:200]}</code>", preview=False)
+        raise
     logging.info("готово: %s", stats)
     if not args.dry_run:
         state.save()

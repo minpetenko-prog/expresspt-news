@@ -523,3 +523,30 @@ def test_morning_batch_takes_only_todays_news(tmp_path):
         now=datetime(2026, 10, 6, 16, 0, tzinfo=timezone.utc),
         fetch=lambda s, src: called.append(1) or [], article=article)
     assert called == []
+
+
+def test_billing_error_alerts_chat(tmp_path, monkeypatch):
+    import anthropic
+    import httpx2 as httpx
+    import newsbot.__main__ as m
+    from newsbot.llm import is_fatal_api_error
+
+    req = httpx.Request("POST", "https://api.anthropic.com/v1/messages")
+    err = anthropic.BadRequestError(
+        "Your credit balance is too low to access the Anthropic API.",
+        response=httpx.Response(400, request=req), body=None)
+    assert is_fatal_api_error(err)
+    assert not is_fatal_api_error(RuntimeError("timeout"))
+
+    sent = []
+    class S:
+        def send(self, text, buttons=None, preview=None): sent.append(text)
+    monkeypatch.setattr(m, "DryRun", lambda: S())
+    monkeypatch.setattr(m, "make_client", lambda key: object())
+    def boom(*a, **k): raise err
+    monkeypatch.setattr(m, "run", boom)
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "x")
+    import pytest
+    with pytest.raises(anthropic.BadRequestError):
+        m.main(["--dry-run", "--state", str(tmp_path / "s.json")])
+    assert sent and "закончился баланс" in sent[0]

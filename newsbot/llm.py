@@ -8,6 +8,18 @@ import logging
 log = logging.getLogger(__name__)
 
 
+def is_fatal_api_error(exc: Exception) -> bool:
+    """Ошибки, при которых дальше пытаться бессмысленно: нет денег, неверный или отозванный ключ."""
+    try:
+        import anthropic
+    except ImportError:
+        return False
+    if isinstance(exc, (anthropic.AuthenticationError, anthropic.PermissionDeniedError)):
+        return True
+    text = str(exc).lower()
+    return isinstance(exc, anthropic.APIStatusError) and ("credit balance" in text or "billing" in text)
+
+
 def make_client(api_key: str):
     import anthropic
     return anthropic.Anthropic(api_key=api_key, max_retries=3)
