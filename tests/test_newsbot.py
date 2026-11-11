@@ -374,11 +374,12 @@ def test_trueportugal_channel_end_to_end(tmp_path):
                    "text": "**Плата за пробки**\n\nAMT [предлагает](SOURCE) сбор.\n\n*Посмотрим 😁*"}
             return SimpleNamespace(content=[SimpleNamespace(type="text", text=json.dumps(out, ensure_ascii=False))])
 
-    extra = [Item("eco", "ECO", "https://eco.sapo.pt/irs-x/", "IRS muda em 2027", published=NOW)]
+    tp_now = datetime(2026, 10, 5, 9, 0, tzinfo=timezone.utc)          # 10:00 Лиссабон — внутри утреннего выпуска
+    extra = [Item("eco", "ECO", "https://eco.sapo.pt/irs-x/", "IRS muda em 2027", published=tp_now)]
     state = State(tmp_path / "tp.json")
     state.bootstrapped, state.known_sources = True, ["eco"]
     sender = DryRun()
-    st = run(cfg, topics, instructions, state, None, sender, client=TPClient(), now=NOW,
+    st = run(cfg, topics, instructions, state, None, sender, client=TPClient(), now=tp_now,
              fetch=_fetch_factory(extra), article=lambda s, i: ("x" * 700, True))
     posts = [t for t, _ in sender.sent if "розовых очков" in t]
     assert st["sent"] >= 1 and posts
@@ -494,7 +495,7 @@ def _batch_setup(tmp_path, extra):
 
 
 def test_morning_batch_takes_only_todays_news(tmp_path):
-    morning = datetime(2026, 10, 6, 8, 5, tzinfo=timezone.utc)        # 09:05 Лиссабон
+    morning = datetime(2026, 10, 6, 7, 5, tzinfo=timezone.utc)        # 08:05 Лиссабон
     today = Item("x", "ECO", "https://x/irs-hoje", "IRS hoje muda", published=datetime(2026, 10, 6, 6, 0, tzinfo=timezone.utc))
     yesterday = Item("x", "ECO", "https://x/irs-ontem", "IRS ontem muda", published=datetime(2026, 10, 5, 21, 0, tzinfo=timezone.utc))
     undated_old = Item("x", "ECO", "https://x/irs-velho", "IRS sem data")
@@ -508,13 +509,13 @@ def test_morning_batch_takes_only_todays_news(tmp_path):
     sender = DryRun()
     st = run(cfg, {"topics": []}, "I", state, None, sender, client=FakeClient(), now=morning,
              fetch=fetch, article=article)
-    assert st["sent"] == 1 and state.last_batch == "2026-10-06 09:00"
+    assert st["sent"] == 1 and state.last_batch == "2026-10-06 08:00"
     assert all(not state.is_new(i) for i in (today, yesterday, undated_old))
 
-    # повторный запуск в 09:20 — выпуск уже сделан, ничего не происходит
+    # повторный запуск в 08:20 — выпуск уже сделан, ничего не происходит
     sender2 = DryRun()
     st2 = run(cfg, {"topics": []}, "I", state, None, sender2, client=FakeClient(),
-              now=datetime(2026, 10, 6, 8, 20, tzinfo=timezone.utc), fetch=fetch, article=article)
+              now=datetime(2026, 10, 6, 7, 20, tzinfo=timezone.utc), fetch=fetch, article=article)
     assert st2["sent"] == 0 and sender2.sent == []
 
     # вне выпуска (17:00) — ничего не делаем, даже не собираем
